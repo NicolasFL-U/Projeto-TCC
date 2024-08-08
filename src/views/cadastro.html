@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles_login.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container text-center">
+        <h1 class="mb-4">Cadastro</h1>
+        <form id="form" action="/validar" method="POST">
+            <div class="form-group position-relative">
+                <div class="container-label">
+                    <label for="contaRiot">Conta Riot</label>
+                    <button class="conta-riot-help" id="contaRiotHelp" type="button">
+                        <b style="color: white">?</b>
+                    </button>
+                    <span id="contaError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Conta
+                        inválida</span>
+                </div>
+                <div class="inline">
+                    <input type="text" class="form-control" id="nomeContaRiot" name="nomeContaRiot"
+                        placeholder="Ex.: Willump V9" maxlength="16" required>
+                    <span class="separator">#</span>
+                    <input type="text" class="form-control" id="tagContaRiot" name="tagContaRiot" placeholder="Ex.: BR1"
+                        maxlength="5" required>
+                </div>
+            </div>
+            <div class="form-group position-relative">
+                <div class="container-label">
+                    <label for="email">E-mail</label>
+                    <span id="emailError" class="text-danger" style="visibility: hidden; margin-left: 10px">*E-mail
+                        inválido</span>
+                </div>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail"
+                    maxlength="320" required>
+            </div>
+            <div class="form-group position-relative">
+                <div class="container-label">
+                    <label for="senha">Senha</label>
+                    <span id="senhaError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Senha
+                        inválida</span>
+                </div>
+                <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha"
+                    minlength="8" maxlength="128" required>
+                <div class="message-box" id="senhaHelp">A senha deve conter no mínimo 8 caracteres.</div>
+            </div>
+            <div class="form-group position-relative">
+                <div class="container-label">
+                    <label for="confirmarSenha">Confirmar Senha</label>
+                    <span id="confirmarSenhaError" class="text-danger"
+                        style="visibility: hidden; margin-left: 10px">*Senhas não coincidem</span>
+                </div>
+                <input type="password" class="form-control" id="confirmarSenha" name="confirmarSenha"
+                    placeholder="Confirme sua senha" minlength="8" maxlength="128" required>
+            </div>
+            <button type="submit" class="btn btn-outline-primary btn-block">Cadastrar-se</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/scripts_login.js"></script>
+</body>
+
+<!-- Modal Conta Riot Help -->
+<div class="modal fade" id="riotHelpModal" tabindex="-1" role="dialog" aria-labelledby="riotHelpModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="riotHelpModalLabel">Como encontrar sua Conta Riot</h5>
+            </div>
+            <div class="modal-body">
+                <ol>
+                    <li>Abra o cliente do League of Legends.</li>
+                    <li>Vá para o seu perfil clicando no ícone no canto superior direito.</li>
+                    <li>Seu Nome da Conta Riot estará visível ao lado da sua foto de perfil.</li>
+                    <li>A Tag da Conta Riot (por exemplo, BR1) também será exibida.</li>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Erro Dados -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Erro no Cadastro</h5>
+            </div>
+            <div class="modal-body">
+                <p>Verifique se todos os campos foram preenchidos corretamente:</p>
+                <ul>
+                    <li>O nome da conta e a tag devem ter pelo menos 3 caracteres.</li>
+                    <li>O e-mail deve ser válido.</li>
+                    <li>A senha deve ter no mínimo 8 caracteres.</li>
+                    <li>As senhas devem coincidir.</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Erro ao Cadastrar -->
+<div class="modal fade" id="cadastroErrorModal" tabindex="-1" role="dialog" aria-labelledby="cadastroErrorModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cadastroErrorModalLabel">Erro ao Cadastrar</h5>
+            </div>
+            <div class="modal-body">
+                <p id="mensagemErroCadastro"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
