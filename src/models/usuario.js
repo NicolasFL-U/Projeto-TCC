@@ -1,4 +1,6 @@
 const axios = require('axios');
+const bcrypt = require('bcrypt');
+const db = require('../database');
 require('dotenv').config();
 
 class Usuario {
@@ -10,7 +12,7 @@ class Usuario {
         this.confirmarSenha = confirmarSenha;
     }
 
-    validar() {
+    validarDados() {
         const erros = [];
 
         if (this.nomeContaRiot.length < 3 || this.nomeContaRiot.length > 16) {
@@ -71,6 +73,56 @@ class Usuario {
         } catch (error) {
             return null;
         }
+    }
+
+    async verificarExistenciaPUUIDBanco(puuid) {
+        const result = await db.query('SELECT 1 FROM jogadores WHERE puuid = $1', [puuid]);
+        return result.rows.length > 0;
+    }
+
+    async verificarExistenciaEmailBanco() {
+        const emailQuery = 'SELECT email FROM jogadores';
+        const emailResults = await db.query(emailQuery);
+
+        for (const row of emailResults.rows) {
+            const isEmailMatch = await bcrypt.compare(this.email, row.email);
+            if (isEmailMatch) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    async verificarLogin() {
+        const emailQuery = 'SELECT email, senha FROM jogadores';
+        const emailResults = await db.query(emailQuery);
+
+        for (const row of emailResults.rows) {
+            const isEmailMatch = await bcrypt.compare(this.email, row.email);
+
+            if (isEmailMatch) {
+                const isPasswordMatch = await bcrypt.compare(this.senha, row.senha);
+                
+                if (isPasswordMatch) {
+                    return { sucesso: true };
+                } else {
+                    return { sucesso: false };
+                }
+            }
+        }
+
+        return { sucesso: false };
+    }
+
+    async salvarUsuarioBanco(puuid) {
+        const hashedPassword = await bcrypt.hash(this.senha, 10);
+        const hashedEmail = await bcrypt.hash(this.email, 10);
+
+        const queryText = 'INSERT INTO jogadores(puuid, email, senha) VALUES($1, $2, $3)';
+        const queryParams = [puuid, hashedEmail, hashedPassword];
+
+        await db.query(queryText, queryParams);
     }
 }
 

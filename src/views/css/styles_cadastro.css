@@ -16,15 +16,11 @@ p.mt-3 {
 }
 
 .container {
-    width: 440px;
+    max-width: 440px;
     padding: 20px;
     background-color: #181818;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.container-label {
-    display: flex;
 }
 
 h1 {
@@ -96,6 +92,21 @@ h1 {
     border-left: 0;
     margin-top: -10px;
     margin-right: -1px;
+}
+
+.container-label {
+    display: flex;
+}
+
+.conta-riot-help {
+    height: 14px;
+    width: 14px;
+    margin-left: 5px;
+    margin-top: 5px;
+    padding: 0px;
+    line-height: 0px;
+    background: none;
+    border: none;
 }
 
 .modal-content {

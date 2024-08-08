@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/styles_login.css" rel="stylesheet">
+    <link href="/css/styles_cadastro.css" rel="stylesheet">
 </head>
 
 <body>
     <div class="container text-center">
         <h1 class="mb-4">Cadastro</h1>
-        <form id="form" action="/validar" method="POST">
+        <form id="form" action="/validarCadastro" method="POST">
             <div class="form-group position-relative">
                 <div class="container-label">
                     <label for="contaRiot">Conta Riot</label>
@@ -60,11 +60,14 @@
             </div>
             <button type="submit" class="btn btn-outline-primary btn-block">Cadastrar-se</button>
         </form>
+        <p class="mt-3">
+            Já possui uma conta? <a href="/logar" class="text-primary">Faça login</a>
+        </p>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/js/scripts_login.js"></script>
+    <script src="/js/scripts_cadastro.js"></script>
 </body>
 
 <!-- Modal Conta Riot Help -->
@@ -77,10 +80,10 @@
             </div>
             <div class="modal-body">
                 <ol>
-                    <li>Abra o cliente do League of Legends.</li>
-                    <li>Vá para o seu perfil clicando no ícone no canto superior direito.</li>
-                    <li>Seu Nome da Conta Riot estará visível ao lado da sua foto de perfil.</li>
-                    <li>A Tag da Conta Riot (por exemplo, BR1) também será exibida.</li>
+                    <li>Abra o cliente da Riot Games (Riot Client) e faça login caso necessário.</li>
+                    <li>Clique no ícone de perfil no canto superior direito.</li>
+                    <li>O Nome da sua Conta estará ao topo do menu aberto.</li>
+                    <li>A Tag da Conta (por exemplo, #BR1) também será exibida logo abaixo.</li>
                 </ol>
             </div>
             <div class="modal-footer">
