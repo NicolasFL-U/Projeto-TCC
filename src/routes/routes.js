@@ -15,4 +15,6 @@ router.get('/logar', (req, res) => {
 
 router.post('/validarLogin', usuarioController.logarUsuario);
 
+router.get('/dashboard', usuarioController.mostrarDashboard);
+
 module.exports = router;

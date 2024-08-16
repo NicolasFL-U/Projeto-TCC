@@ -75,6 +75,25 @@ class Usuario {
         }
     }
 
+    async getPuuidPorEmail() {
+        try {
+            const emailQuery = 'SELECT email, puuid FROM jogadores';
+            const result = await db.query(emailQuery);
+    
+            for (const row of result.rows) {
+                const isEmailMatch = await bcrypt.compare(this.email, row.email);
+                if (isEmailMatch) {
+                    return row.puuid;
+                }
+            }
+    
+            return null; 
+        } catch (error) {
+            console.error('Erro ao buscar PUUID por email:', error);
+            throw error;
+        }
+    }
+
     async verificarExistenciaPUUIDBanco(puuid) {
         const result = await db.query('SELECT 1 FROM jogadores WHERE puuid = $1', [puuid]);
         return result.rows.length > 0;

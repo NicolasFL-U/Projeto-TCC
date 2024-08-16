@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
             case 1:
                 mensagem = "O e-mail e/ou senha inseridos são inválidos.";
                 break;
+            case 2:
+                mensagem = "Erro ao buscar os dados do usuário. Por favor, tente novamente.";
+                break;
             default:
                 mensagem = "Erro desconhecido.";
         }

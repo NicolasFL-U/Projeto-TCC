@@ -63,5 +63,27 @@ exports.logarUsuario = async (req, res) => {
         return res.redirect(`/logar?${queryParams}`);
     }
 
-    res.redirect('/dashboard');
-}
+    const puuid = await usuario.getPuuidPorEmail();
+    
+    if (puuid) {
+        req.session.puuid = puuid;
+        req.session.email = email;
+        req.session.logado = true;
+
+        return res.redirect('/dashboard');
+    } else {
+        const queryParams = new URLSearchParams({ erro: 2 }).toString();
+        return res.redirect(`/logar?${queryParams}`);
+    }
+};
+
+exports.mostrarDashboard = (req, res) => {
+    if (req.session.logado) {
+        res.render('dashboard', { 
+            puuid: req.session.puuid,
+            email: req.session.email
+        });
+    } else {
+        res.redirect('/logar');
+    }
+};
