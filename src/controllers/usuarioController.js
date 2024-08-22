@@ -70,20 +70,9 @@ exports.logarUsuario = async (req, res) => {
         req.session.email = email;
         req.session.logado = true;
 
-        return res.redirect('/dashboard');
+        return res.redirect('/partidas');
     } else {
         const queryParams = new URLSearchParams({ erro: 2 }).toString();
         return res.redirect(`/logar?${queryParams}`);
-    }
-};
-
-exports.mostrarDashboard = (req, res) => {
-    if (req.session.logado) {
-        res.render('dashboard', { 
-            puuid: req.session.puuid,
-            email: req.session.email
-        });
-    } else {
-        res.redirect('/logar');
     }
 };

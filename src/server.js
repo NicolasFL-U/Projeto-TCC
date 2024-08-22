@@ -30,6 +30,9 @@ app.set('views', path.join(__dirname, 'views'));
 // Usar as rotas definidas
 app.use(routes);
 
+// Procedimentos pré-inicialização
+
+
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
 });

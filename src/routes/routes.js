@@ -1,5 +1,8 @@
 const express = require('express');
+
 const usuarioController = require('../controllers/usuarioController');
+const partidaController = require('../controllers/partidaController');
+
 const router = express.Router();
 const path = require('path');
 
@@ -15,6 +18,8 @@ router.get('/logar', (req, res) => {
 
 router.post('/validarLogin', usuarioController.logarUsuario);
 
-router.get('/dashboard', usuarioController.mostrarDashboard);
+router.get('/partidas', partidaController.mostrarPartidas);
+
+router.post('/atualizarPartidas', partidaController.atualizarPartidas);
 
 module.exports = router;
