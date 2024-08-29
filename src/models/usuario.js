@@ -75,6 +75,29 @@ class Usuario {
         }
     }
 
+    async encontrarSummonerIdPorPUUID(puuid) {
+        try {
+            // Fazendo a requisição para obter o Summoner ID pelo PUUID
+            const response = await axios.get(`https://br1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`, {
+                params: {
+                    api_key: process.env.RIOT_API_KEY
+                }
+            });
+
+            // Verificando se a requisição foi bem-sucedida
+            if (response.status === 200) {
+                const summonerId = response.data.id;
+                return summonerId;
+            } else {
+                console.error('Erro ao obter Summoner ID: Resposta inesperada');
+                return null;
+            }
+        } catch (error) {
+            console.error('Erro ao obter Summoner ID:', error.message);
+            return null;
+        }
+    }
+
     async getPuuidPorEmail() {
         try {
             const emailQuery = 'SELECT email, puuid FROM jogadores';
@@ -138,8 +161,10 @@ class Usuario {
         const hashedPassword = await bcrypt.hash(this.senha, 10);
         const hashedEmail = await bcrypt.hash(this.email, 10);
 
-        const queryText = 'INSERT INTO jogadores(puuid, email, senha) VALUES($1, $2, $3)';
-        const queryParams = [puuid, hashedEmail, hashedPassword];
+        const queryText = 'INSERT INTO jogadores(puuid, email, senha, summoner_id) VALUES($1, $2, $3, $4)';
+
+        const summonerId = await this.encontrarSummonerIdPorPUUID(puuid);
+        const queryParams = [puuid, hashedEmail, hashedPassword, summonerId];
 
         await db.query(queryText, queryParams);
     }
