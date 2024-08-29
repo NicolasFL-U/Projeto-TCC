@@ -17,17 +17,26 @@ body {
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
+    color:#000000;
 }
 
 .nav-link {
-    color: #ffffff;
-    font-size: large;
-    margin-left: 10px;
-    margin-right: 10px;
+    color: #000000;
+    font-size: 1.2rem; /* Tamanho da fonte inicial */
+    transition: font-size 0.15s ease-in-out; /* Transição suave */
+    margin-left: 15px;
+    margin-right: 15px
 }
 
 .nav-link:hover {
-    color: #bbbbbb;
+    color: #000;
+    font-size: 1.4rem; /* Tamanho da fonte ao passar o mouse */
+}
+
+.navbar-centered {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .container {
@@ -91,4 +100,33 @@ body {
 
 .partida-vitoria {
     background-color: rgba(0, 255, 0, 0.1);
+}
+
+.btn-outline-custom {
+    border: 2px solid #121212; /* Cor da borda */
+    color: #121212; /* Cor do texto */
+    background-color: transparent;
+    padding: 5px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-outline-custom:hover {
+    background-color: #121212; /* Cor de preenchimento ao hover */
+    color: #ffffff; /* Cor do texto ao hover */
+}
+
+.modal-content {
+    background-color: #181818;
+    color: #ffffff;
+    border: 1px solid #333;
+}
+
+.modal-header {
+    border-bottom: 1px solid #333;
+}
+
+.modal-footer {
+    border-top: 1px solid #333;
 }

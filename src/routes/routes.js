@@ -22,4 +22,6 @@ router.get('/partidas', partidaController.mostrarPartidas);
 
 router.post('/atualizarPartidas', partidaController.atualizarPartidas);
 
+router.post('/logoff', usuarioController.deslogarUsuario);
+
 module.exports = router;

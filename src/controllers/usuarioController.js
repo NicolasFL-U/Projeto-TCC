@@ -76,3 +76,8 @@ exports.logarUsuario = async (req, res) => {
         return res.redirect(`/logar?${queryParams}`);
     }
 };
+
+exports.deslogarUsuario = (req, res) => {
+    req.session.destroy();
+    res.redirect('/logar');
+};

@@ -237,18 +237,26 @@ describe('Testes das funções de banco de dados', () => {
     });
 
     // Teste para salvarUsuarioBanco
-    test('Deve salvar o usuário no banco de dados', async () => {
+    test('Deve salvar o usuário no banco de dados com o summonerId', async () => {
+        const mockSummonerId = 'mock-summoner-id';
+    
+        // Criando a instância do usuário primeiro
+        const usuario = new Usuario('MAFIA BOSS NUNU', 'BOLAS', 'teste@teste.com', 'senha123', 'senha123');
+    
+        // Mockando a função `encontrarSummonerIdPorPUUID` para retornar um summonerId válido
+        jest.spyOn(usuario, 'encontrarSummonerIdPorPUUID').mockResolvedValueOnce(mockSummonerId);
+    
+        // Mockando o bcrypt.hash para retornar um valor encriptado fixo
         bcrypt.hash.mockResolvedValueOnce('hashed-password');
         bcrypt.hash.mockResolvedValueOnce('hashed-email');
-
-        const usuario = new Usuario('MAFIA BOSS NUNU', 'BOLAS', 'teste@teste.com', 'senha123', 'senha123');
+    
         await usuario.salvarUsuarioBanco('valid-puuid');
-
+    
         expect(bcrypt.hash).toHaveBeenCalledWith('senha123', 10);
         expect(bcrypt.hash).toHaveBeenCalledWith('teste@teste.com', 10);
         expect(mockPool.query).toHaveBeenCalledWith(
-            'INSERT INTO jogadores(puuid, email, senha) VALUES($1, $2, $3)',
-            ['valid-puuid', 'hashed-email', 'hashed-password']
+            'INSERT INTO jogadores(puuid, email, senha, summoner_id) VALUES($1, $2, $3, $4)',
+            ['valid-puuid', 'hashed-email', 'hashed-password', mockSummonerId]
         );
     });
 });
