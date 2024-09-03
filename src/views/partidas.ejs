@@ -45,7 +45,7 @@
                             default: return role;
                         }
                     }
-
+        
                     function getRoleIcon(role) {
                         switch(role) {
                             case 'TOP': return 'top.png';
@@ -55,6 +55,23 @@
                             case 'UTILITY': return 'support.png';
                             default: return '';
                         }
+                    }
+
+                    function getSpellImage(spellId) {
+                        const spellMap = {
+                            1: 'SummonerBoost',
+                            3: 'SummonerExhaust',
+                            4: 'SummonerFlash',
+                            6: 'SummonerHaste',
+                            7: 'SummonerHeal',
+                            11: 'SummonerSmite',
+                            12: 'SummonerTeleport',
+                            13: 'SummonerMana',
+                            14: 'SummonerDot',
+                            21: 'SummonerBarrier',
+                            32: 'SummonerSnowball'
+                        };
+                        return `https://ddragon.leagueoflegends.com/cdn/14.16.1/img/spell/${spellMap[spellId] || 'SummonerFlash'}.png`;
                     }
                 %>
                     <li class="list-group-item <%= partida.resultado === 'Vitória' ? 'partida-vitoria' : 'partida-derrota' %>" style="margin-bottom: 10px">
@@ -71,12 +88,48 @@
                         <div class="d-flex align-items-center mt-2" style="padding-top: 10px;">
                             <!-- Imagem do Campeão -->
                             <img src="https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/<%= partida.campeao %>.png" alt="<%= partida.campeao %>" class="imagem-campeao">
+
+                            <!-- Summoner Spells ao lado do campeão -->
+                            <div class="summoner-spells">
+                                <img src="<%= getSpellImage(partida.summoner_spells.spell2) %>" alt="Spell 2" class="summoner-spell-icon">
+                                <img src="<%= getSpellImage(partida.summoner_spells.spell1) %>" alt="Spell 1" class="summoner-spell-icon">
+                            </div>
+
+                            <!-- K/D/A do jogador -->
+                            <div class="kda">
+                                <span class="kda-kills"><%= partida.kda.split('/')[0] %></span>
+                                <span class="kda-barra">/</span>
+                                <span class="kda-deaths"><%= partida.kda.split('/')[1] %></span>
+                                <span class="kda-barra">/</span>
+                                <span class="kda-assists"><%= partida.kda.split('/')[2] %></span>
+                            </div>
+
                             <!-- Role do Jogador -->
                             <span class="role-jogador">
                                 <%= formatRole(partida.role) %>
                                 <img src="/ranked-positions/<%= getRoleIcon(partida.role) %>" alt="<%= partida.role %>" style="width: 24px; height: 24px; margin-left: 5px;">
                             </span>
+                        </div>                   
+
+                        <!-- Seção de detalhes adicionais (oculta por padrão) -->
+                        <div id="detalhes-<%= partida.id_partida %>" class="detalhes-partida mt-2 collapse">
+                            <div class="row">
+                                <div class="col-4">
+                                    <strong>Dano Total:</strong> <%= partida.dano_total %>
+                                </div>
+                                <div class="col-4">
+                                    <strong>CS:</strong> <%= partida.creep_score.totalMinionsKilled + partida.creep_score.neutralMinionsKilled %>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <strong>Runas:</strong> Primárias: <%= partida.runas.primarias.join(', ') %>, Secundárias: <%= partida.runas.secundarias.join(', ') %>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Botão para mostrar mais detalhes -->
+                        <button class="btn btn-sm btn-link btn-center" data-toggle="collapse" data-target="#detalhes-<%= partida.id_partida %>" aria-expanded="false" aria-controls="detalhes-<%= partida.id_partida %>">Mais detalhes</button>
                     </li>
                 <% }) %>
             <% } else { %>

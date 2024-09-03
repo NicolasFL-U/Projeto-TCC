@@ -64,10 +64,28 @@ body {
     margin-right: 10px;
 }
 
-.role-jogador {
+.kda {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.kda-kills {
+    color: rgba(0, 255, 0, 0.85);
+}
+
+.kda-deaths {
+    color: rgba(255, 0, 0, 0.85);
+}
+
+.kda-assists {
+    color: rgba(0, 187, 255, 0.85);
+}
+
+.role-jogador {
+    position: absolute;
+    right: 0;
+    padding-right: 15px;
 }
 
 .data-partida {
@@ -129,4 +147,23 @@ body {
 
 .modal-footer {
     border-top: 1px solid #333;
+}
+
+.btn-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.summoner-spells {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.summoner-spell-icon {
+    width: 23px;
+    height: 23px;
+    margin-bottom: 1px;
 }
