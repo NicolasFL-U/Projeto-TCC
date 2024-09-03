@@ -98,6 +98,43 @@ class Usuario {
         }
     }
 
+    async encontrarDadosRankingPorSummonerId(summonerId) {
+        try {
+            // Fazendo a requisição para obter os dados de ranking pelo Summoner ID
+            const response = await axios.get(`https://br1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}`, {
+                params: {
+                    api_key: process.env.RIOT_API_KEY
+                }
+            });
+
+            // Verificando se a requisição foi bem-sucedida
+            if (response.status === 200 && response.data.length > 0) {
+                // Filtrando para pegar os dados do ranking solo/duo
+                const rankedSoloDuo = response.data.find(queue => queue.queueType === 'RANKED_SOLO_5x5');
+
+                if (rankedSoloDuo) {
+                    const { tier, rank, wins, losses, leaguePoints } = rankedSoloDuo;
+                    return {
+                        tier,
+                        rank,
+                        wins,
+                        losses,
+                        leaguePoints
+                    };
+                } else {
+                    console.log('Jogador não possui dados de ranking solo/duo.');
+                    return null;
+                }
+            } else {
+                console.error('Erro ao obter dados de ranking: Resposta inesperada');
+                return null;
+            }
+        } catch (error) {
+            console.error('Erro ao obter dados de ranking:', error.message);
+            return null;
+        }
+    }
+
     async getPuuidPorEmail() {
         try {
             const emailQuery = 'SELECT email, puuid FROM jogadores';
