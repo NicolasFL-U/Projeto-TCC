@@ -69,7 +69,7 @@ describe('Testes da função buscarIdsPartidas', () => {
         db.query.mockResolvedValueOnce({ rows: [{ ultima_partida: 1625151600000 }] });
         axios.get.mockRejectedValueOnce(new Error('Erro na API'));
 
-        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
 
         const ids = await partida.buscarIdsPartidas();
 
@@ -179,7 +179,7 @@ describe('Testes da função buscarDadosPartida', () => {
     test('Deve retornar null e logar erro se ocorrer erro na API', async () => {
         axios.get.mockRejectedValueOnce(new Error('Erro na API'));
 
-        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
 
         const dados = await partida.buscarDadosPartida('BR1_2983237130');
 
@@ -290,20 +290,21 @@ describe('Testes da função salvarPartidaBanco', () => {
             itensFinais: [3071, 3047, 6692, 6333, 3156, 3076, 3364],
             creepScore: { totalMinionsKilled: 200, neutralMinionsKilled: 50 },
             danoTotal: 25000,
+            ouroGanho: 15000,  // Corrigido: valor definido corretamente
         };
-
+    
         db.query.mockResolvedValueOnce({}); 
         db.query.mockResolvedValueOnce({}); 
         db.query.mockResolvedValueOnce({}); 
         db.query.mockResolvedValueOnce({}); 
-
+    
         await partida.salvarPartidaBanco(mockDadosPartida);
-
+    
         expect(db.query).toHaveBeenCalledWith('BEGIN');
         expect(db.query).toHaveBeenCalledWith(
             `
-                INSERT INTO partidas (puuid, id_partida, data_partida, duracao_partida, campeao, resultado, role, kda, summoner_spells, runas, itens_finais, creep_score, dano_total)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                INSERT INTO partidas (puuid, id_partida, data_partida, duracao_partida, campeao, resultado, role, kda, summoner_spells, runas, itens_finais, creep_score, dano_total, ouro_ganho)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             `,
             [
                 'exemplo-puuid',
@@ -325,9 +326,10 @@ describe('Testes da função salvarPartidaBanco', () => {
                     neutralMinionsKilled: 50,
                 }),
                 25000,
+                15000,  // Certifique-se de que o valor está definido
             ]
         );
-
+    
         expect(db.query).toHaveBeenCalledWith(
             `
                 UPDATE jogadores
@@ -340,9 +342,9 @@ describe('Testes da função salvarPartidaBanco', () => {
             `,
             ['exemplo-puuid']
         );
-
+    
         expect(db.query).toHaveBeenCalledWith('COMMIT');
-    });
+    });    
 
     test('Deve fazer rollback em caso de erro ao salvar a partida', async () => {
         const mockDadosPartida = {
@@ -366,7 +368,7 @@ describe('Testes da função salvarPartidaBanco', () => {
         db.query.mockResolvedValueOnce({});
         db.query.mockRejectedValueOnce(new Error('Erro no banco de dados'));
 
-        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
 
         await partida.salvarPartidaBanco(mockDadosPartida);
 
@@ -404,6 +406,7 @@ describe('Testes da função buscarPartidasNoBanco', () => {
                 campeao: 'Aatrox',
                 resultado: 'Vitória',
                 role: 'TOP',
+                link_vod: null,
             },
         ];
 
@@ -423,9 +426,11 @@ describe('Testes da função buscarPartidasNoBanco', () => {
                     itens_finais,
                     creep_score,
                     dano_total,
+                    ouro_ganho,
                     campeao,
                     resultado,
-                    role
+                    role,
+                    link_vod
                 FROM partidas
                 WHERE puuid = $1
                 ORDER BY data_partida DESC
@@ -439,7 +444,7 @@ describe('Testes da função buscarPartidasNoBanco', () => {
     test('Deve lançar um erro ao falhar em buscar as partidas', async () => {
         db.query.mockRejectedValueOnce(new Error('Erro no banco de dados'));
 
-        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
 
         await expect(partida.buscarPartidasNoBanco()).rejects.toThrow('Erro ao buscar partidas no banco');
 

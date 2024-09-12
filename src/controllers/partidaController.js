@@ -1,4 +1,5 @@
 const Partida = require('../models/partida');
+const { getRuneImage } = require('../utils/partidas_funcoes');
 
 // Controller para lidar com o botão de atualizar e buscar partidas
 exports.atualizarPartidas = async (req, res) => {
@@ -42,7 +43,7 @@ exports.mostrarPartidas = async (req, res) => {
         const partidas = await partidaModel.buscarPartidasNoBanco();
 
         // Renderizar a página de partidas com os dados obtidos
-        res.render('partidas', { partidas });
+        res.render('partidas', { partidas, getRuneImage });
     } catch (error) {
         console.error('Erro ao exibir as partidas:', error);
         res.status(500).send('Erro ao exibir as partidas');

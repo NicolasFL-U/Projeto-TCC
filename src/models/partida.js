@@ -103,6 +103,7 @@ class Partida {
                         neutralMinionsKilled: jogador.neutralMinionsKilled,
                     },
                     danoTotal: jogador.totalDamageDealtToChampions,
+                    ouroGanho: jogador.goldEarned,
                 };
     
                 return dados;
@@ -121,8 +122,8 @@ class Partida {
             await db.query('BEGIN');
     
             const queryText = `
-                INSERT INTO partidas (puuid, id_partida, data_partida, duracao_partida, campeao, resultado, role, kda, summoner_spells, runas, itens_finais, creep_score, dano_total)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                INSERT INTO partidas (puuid, id_partida, data_partida, duracao_partida, campeao, resultado, role, kda, summoner_spells, runas, itens_finais, creep_score, dano_total, ouro_ganho)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             `;
             const queryParams = [
                 this.puuid,
@@ -137,7 +138,8 @@ class Partida {
                 JSON.stringify(dados.runas),
                 JSON.stringify(dados.itensFinais),
                 JSON.stringify(dados.creepScore),
-                dados.danoTotal
+                dados.danoTotal,
+                dados.ouroGanho
             ];
     
             await db.query(queryText, queryParams);
@@ -177,21 +179,23 @@ class Partida {
                     itens_finais,
                     creep_score,
                     dano_total,
+                    ouro_ganho,
                     campeao,
                     resultado,
-                    role
+                    role,
+                    link_vod
                 FROM partidas
                 WHERE puuid = $1
                 ORDER BY data_partida DESC
             `;
             const result = await db.query(query, [this.puuid]);
-
+    
             return result.rows;
         } catch (error) {
             console.error('Erro ao buscar partidas no banco:', error.message);
             throw new Error('Erro ao buscar partidas no banco');
         }
-    }
+    }    
 }
 
 module.exports = Partida;

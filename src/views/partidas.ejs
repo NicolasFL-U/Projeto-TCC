@@ -27,6 +27,37 @@
         </div>
     </nav>
 
+    <div class="dados-usuario d-flex align-items-center">
+        <!-- Profile Icon -->
+        <img id="profileIcon" src="" alt="Ícone de Perfil" class="profile-icon">
+    
+        <!-- Informações do jogador -->
+        <div class="informacoes-jogador">
+            <h5 id="gameName">Buscando</h5>
+            <p id="summonerLevel" class="level-text">Nível: <span>Buscando</span></p>
+        </div>
+    
+        <!-- Elo e PDL com ícone do elo -->
+        <div class="elo-pdl d-flex align-items-center">
+            <img id="eloIcon" src="" alt="Ícone do Elo" class="elo-icon"> <!-- Ícone do Elo -->
+            <div class="d-flex flex-column text-center">
+                <p id="tier">Buscando</p>
+                <p id="rank">Buscando</p>
+                <p id="leaguePoints">Buscando</p>
+            </div>
+        </div>
+    
+        <!-- Vitórias, Derrotas e Winrate -->
+        <div class="vitorias-derrotas">
+            <p id="wins-losses">
+                <span id="wins">Buscando</span>V / <span id="losses">Buscando</span>L
+            </p>
+            <p id="winrate">(Buscando)</p>
+        </div>
+    </div>
+
+    <hr class="linha-separadora">
+    
     <div class="container mt-4">
         <h2 class="text-center">Suas Partidas</h2>
         <div class="text-right mb-3">
@@ -45,7 +76,16 @@
                             default: return role;
                         }
                     }
-        
+
+                    function toggleTextoDetalhes(botao) {
+                        // Verifica o estado do botão e troca o texto
+                        if (botao.textContent === "Mais detalhes") {
+                            botao.textContent = "Menos detalhes";
+                        } else {
+                            botao.textContent = "Mais detalhes";
+                        }
+                    }
+                    
                     function getRoleIcon(role) {
                         switch(role) {
                             case 'TOP': return 'top.png';
@@ -56,7 +96,7 @@
                             default: return '';
                         }
                     }
-
+                    
                     function getSpellImage(spellId) {
                         const spellMap = {
                             1: 'SummonerBoost',
@@ -97,11 +137,16 @@
 
                             <!-- K/D/A do jogador -->
                             <div class="kda">
-                                <span class="kda-kills"><%= partida.kda.split('/')[0] %></span>
-                                <span class="kda-barra">/</span>
-                                <span class="kda-deaths"><%= partida.kda.split('/')[1] %></span>
-                                <span class="kda-barra">/</span>
-                                <span class="kda-assists"><%= partida.kda.split('/')[2] %></span>
+                                <div class="text-center" style="font-size: small;">
+                                    <span>K / D / A</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="kda-kills"><%= partida.kda.split('/')[0] %></span>
+                                    <span class="kda-barra">/</span>
+                                    <span class="kda-deaths"><%= partida.kda.split('/')[1] %></span>
+                                    <span class="kda-barra">/</span>
+                                    <span class="kda-assists"><%= partida.kda.split('/')[2] %></span> 
+                                </div>
                             </div>
 
                             <!-- Role do Jogador -->
@@ -112,24 +157,50 @@
                         </div>                   
 
                         <!-- Seção de detalhes adicionais (oculta por padrão) -->
-                        <div id="detalhes-<%= partida.id_partida %>" class="detalhes-partida mt-2 collapse">
+                        <div id="detalhes-<%= partida.id_partida %>" class="detalhes-partida mt-2 collapse" style="padding-top: 0px;">
                             <div class="row">
-                                <div class="col-4">
-                                    <strong>Dano Total:</strong> <%= partida.dano_total %>
+                                <div class="col text-left">
+                                    <span>Dano:</span> <%= partida.dano_total %> (<%= Math.floor(partida.dano_total / (partida.duracao_partida / 60)) %>/min)
                                 </div>
-                                <div class="col-4">
-                                    <strong>CS:</strong> <%= partida.creep_score.totalMinionsKilled + partida.creep_score.neutralMinionsKilled %>
+                                <div class="col-md-auto text-center">
+                                    <%= partida.creep_score.totalMinionsKilled + partida.creep_score.neutralMinionsKilled %>CS 
+                                    (<%= ((partida.creep_score.totalMinionsKilled + partida.creep_score.neutralMinionsKilled) / (partida.duracao_partida / 60)).toFixed(1) %>/min)
+                                </div>
+                                <div class="col text-right">
+                                    <span>Ouro:</span> <%= partida.ouro_ganho %> (<%= Math.floor(partida.ouro_ganho / (partida.duracao_partida / 60)) %>/min)
                                 </div>
                             </div>
                             <div class="row mt-2">
-                                <div class="col-6">
-                                    <strong>Runas:</strong> Primárias: <%= partida.runas.primarias.join(', ') %>, Secundárias: <%= partida.runas.secundarias.join(', ') %>
+                                <div class="col-6 text-center">
+                                    <span>Itens:</span>
+                                    <% partida.itens_finais.forEach(function(item) { %>
+                                        <% if (item !== 0) { %>
+                                            <img src="https://ddragon.leagueoflegends.com/cdn/14.17.1/img/item/<%= item %>.png" alt="Item <%= item %>" style="width: 30px; height: 30px;">
+                                        <% } %>
+                                    <% }) %>
+                                </div>
+                                <div class="col-6 text-center" style="padding-bottom: 10px">
+                                    <span>Runas:</span>
+                                    <% partida.runas.primarias.forEach(function(runaId) { %>
+                                        <img src="<%= getRuneImage(runaId) %>" alt="Runa <%= runaId %>" style="width: 30px; height: 30px;">
+                                    <% }) %> &nbsp;
+                                    <% partida.runas.secundarias.forEach(function(runaId) { %>
+                                        <img src="<%= getRuneImage(runaId) %>" alt="Runa <%= runaId %>" style="width: 30px; height: 30px;">
+                                    <% }) %>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Botão para mostrar mais detalhes -->
-                        <button class="btn btn-sm btn-link btn-center" data-toggle="collapse" data-target="#detalhes-<%= partida.id_partida %>" aria-expanded="false" aria-controls="detalhes-<%= partida.id_partida %>">Mais detalhes</button>
+                        <!-- botões de mostrar detalhes e adicionar VOD, um ao lado do outro -->
+                        <div class="d-flex justify-content-between mt-2">
+                            <!-- Botão para mostrar mais detalhes -->
+                            <button class="btn btn-sm btn-link btn-center btn-mais-detalhes" data-toggle="collapse" data-target="#detalhes-<%= partida.id_partida %>" aria-expanded="false" aria-controls="detalhes-<%= partida.id_partida %>" onclick="toggleTextoDetalhes(this)">Mais detalhes</button>
+                        
+                            <!-- Botão para adicionar ou visualizar VOD -->
+                            <button class="btn btn-sm btn-link vod-btn" data-toggle="modal" data-target="#vodModal" data-partida-id="<%= partida.id_partida %>" data-link-vod="<%= partida.link_vod || '' %>">
+                                <%= partida.link_vod ? 'VOD Review >>' : 'Adicionar VOD +' %>
+                            </button>
+                        </div>
                     </li>
                 <% }) %>
             <% } else { %>
@@ -145,6 +216,41 @@
             $('#btnAtualizar').click(function() {
                 $.post('/atualizarPartidas', function(response) {
                     location.reload(); // Recarrega a página para mostrar as novas partidas
+                });
+            });
+
+            // Preenche o modal com as informações da partida ao clicar no botão de VOD
+            $('.vod-btn').click(function() {
+                const partidaId = $(this).data('partida-id');
+                const linkVod = $(this).data('link-vod');
+
+                $('#partida_id').val(partidaId);
+                $('#link_vod').val(linkVod);
+            });
+
+            // Envia o formulário para salvar o link da VOD
+            $('#vodForm').submit(function(event) {
+                event.preventDefault(); // Evita o envio tradicional do formulário
+
+                let linkVod = $('#link_vod').val();
+
+                // Verifica se o link começa com "https://www.youtube.com/watch?v="
+                const youtubeBaseUrl = "https://www.youtube.com/watch?v=";
+                if (!linkVod.startsWith(youtubeBaseUrl)) {
+                    alert("Por favor, insira um link válido do YouTube que comece com 'https://www.youtube.com/watch?v='");
+                    return;
+                }
+
+                // Remove tudo que vem após o "v=" no link
+                const urlWithoutParams = linkVod.split('&')[0];
+                $('#link_vod').val(urlWithoutParams); // Atualiza o campo com o link corrigido
+
+                const formData = $(this).serialize();
+
+                $.post('/salvarVod', formData, function(response) {
+                    // Exibir uma mensagem de sucesso (opcional)
+                    $('#vodModal').modal('hide');
+                    location.reload(); // Atualiza a página para refletir o link atualizado
                 });
             });
         });
@@ -165,6 +271,30 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" id="fecharModalBtn">Fechar</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar VOD -->
+<div class="modal fade" id="vodModal" tabindex="-1" role="dialog" aria-labelledby="vodModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vodModalLabel">Adicionar/Editar VOD</h5>
+            </div>
+            <div class="modal-body">
+                <form id="vodForm">
+                    <div class="form-group">
+                        <label for="link_vod">Link do YouTube:</label>
+                        <input type="url" class="form-control" id="link_vod" name="link_vod" placeholder="https://www.youtube.com/watch?v=..." required>
+                    </div>
+                    <input type="hidden" id="partida_id" name="partida_id">
+                    <button type="submit" class="btn btn-outline-primary text-right">Salvar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Fechar</button>
+            </div>            
         </div>
     </div>
 </div>

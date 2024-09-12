@@ -98,39 +98,59 @@ class Usuario {
         }
     }
 
-    async encontrarDadosRankingPorSummonerId(summonerId) {
+    async encontrarDadosGeraisUsuario(puuid) {
         try {
-            // Fazendo a requisição para obter os dados de ranking pelo Summoner ID
-            const response = await axios.get(`https://br1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}`, {
+            // 1. Buscar o SummonerId do usuário no banco de dados
+            const summonerIdQuery = 'SELECT summoner_id FROM jogadores WHERE puuid = $1';
+            const result = await db.query(summonerIdQuery, [puuid]);
+    
+            const summonerId = result.rows[0]?.summoner_id;
+            if (!summonerId) {
+                throw new Error('SummonerId não encontrado no banco de dados');
+            }
+    
+            // 2. Fazer a primeira requisição: /riot/account/v1/accounts/by-puuid/{puuid}
+            const accountResponse = await axios.get(`https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/${puuid}`, {
                 params: {
                     api_key: process.env.RIOT_API_KEY
                 }
             });
-
-            // Verificando se a requisição foi bem-sucedida
-            if (response.status === 200 && response.data.length > 0) {
-                // Filtrando para pegar os dados do ranking solo/duo
-                const rankedSoloDuo = response.data.find(queue => queue.queueType === 'RANKED_SOLO_5x5');
-
-                if (rankedSoloDuo) {
-                    const { tier, rank, wins, losses, leaguePoints } = rankedSoloDuo;
-                    return {
-                        tier,
-                        rank,
-                        wins,
-                        losses,
-                        leaguePoints
-                    };
-                } else {
-                    console.log('Jogador não possui dados de ranking solo/duo.');
-                    return null;
+    
+            const { gameName, tagLine } = accountResponse.data;
+    
+            // 3. Fazer a segunda requisição: /lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}
+            const summonerResponse = await axios.get(`https://br1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`, {
+                params: {
+                    api_key: process.env.RIOT_API_KEY
                 }
-            } else {
-                console.error('Erro ao obter dados de ranking: Resposta inesperada');
-                return null;
-            }
+            });
+    
+            const { profileIconId, summonerLevel } = summonerResponse.data;
+    
+            // 4. Fazer a terceira requisição: /lol/league/v4/entries/by-summoner/{encryptedSummonerId}
+            const leagueResponse = await axios.get(`https://br1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}`, {
+                params: {
+                    api_key: process.env.RIOT_API_KEY
+                }
+            });
+    
+            const rankedSoloDuo = leagueResponse.data.find(queue => queue.queueType === 'RANKED_SOLO_5x5');
+            const { tier, rank, wins, losses, leaguePoints } = rankedSoloDuo || {};
+    
+            // Retornar os dados em um único objeto
+            return {
+                gameName,
+                tagLine,
+                profileIconId,
+                summonerLevel,
+                tier: tier || 'Unranked',
+                rank: rank || '',
+                wins: wins || 0,
+                losses: losses || 0,
+                leaguePoints: leaguePoints || 0
+            };
         } catch (error) {
-            console.error('Erro ao obter dados de ranking:', error.message);
+            console.error('Erro ao buscar dados gerais do usuário:', error.message);
             return null;
         }
     }
