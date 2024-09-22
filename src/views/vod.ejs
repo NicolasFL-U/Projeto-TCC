@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOD da Partida <%= vod.id_partida %></title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles_vod.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-primary">
+        <b class="navbar-brand">VOD da Partida <%= vod.id_partida %></b>
+        <div class="container justify-content-center">
+            <ul class="navbar-nav navbar-centered">
+                <li class="nav-item">
+                    <a class="nav-link" href="/partidas">Partidas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metas">Metas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/estatisticas">Estatísticas</a>
+                </li>
+            </ul>
+        </div>
+        <div class="ml-auto">
+            <!-- Botão de configurações -->
+            <button type="button" class="btn btn-outline-light" data-toggle="modal" data-target="#configModal">
+                <img src="/images/gear-icon.png" alt="Configurações" style="width: 24px; height: 24px;">
+            </button>
+        </div>
+    </nav>
+
+    <!-- Corpo principal -->
+    <div class="container mt-4 text-center">
+        <div class="text-center mb-3">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= vod.link_vod %>" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="configModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="configModalLabel">Configurações da VOD</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <!-- Formulário "invisível" para não afetar o layout -->
+                    <form action="/alterarVisibilidadeVod" method="POST" id="vodConfigForm" style="display: none;">
+                        <input type="hidden" name="link_vod" value="<%= vod.link_vod %>">
+                        <input type="hidden" name="vod_publica" id="vodPublicaHidden">
+                    </form>
+                    
+                    <!-- Acessível para todos com o link toggle -->
+                    <div class="form-group d-flex align-items-center justify-content-center" style="margin-top: 15px;">
+                        <label for="publicToggle" class="mr-3" style="margin-top: 6px;">Acessível para todos com o link</label>
+                        <input type="checkbox" id="publicToggle" class="custom-toggle" <%= vod.vod_publica ? 'checked' : '' %>>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" id="salvarConfigBtn">Salvar</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Quando o botão "Salvar" for clicado, o formulário invisível será enviado
+            $('#salvarConfigBtn').click(function() {
+                // Define o valor do campo hidden com base no estado do toggle
+                const isPublic = $('#publicToggle').is(':checked') ? 'on' : 'off';
+                $('#vodPublicaHidden').val(isPublic);
+
+                // Submete o formulário
+                $('#vodConfigForm').submit();
+            });
+        });
+    </script>
+</body>
+</html>

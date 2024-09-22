@@ -5,6 +5,7 @@ const db = require('../database');
 
 const usuarioController = require('../controllers/usuarioController');
 const partidaController = require('../controllers/partidaController');
+const vodController = require('../controllers/vodController');
 
 const router = express.Router();
 const path = require('path');
@@ -46,24 +47,33 @@ router.get('/dadosUsuario', async (req, res) => {
     }
 });
 
-router.post('/salvarVod', async (req, res) => {
-    const { partida_id, link_vod } = req.body;
-    const puuid = req.session.puuid;
+router.post('/salvarVod', vodController.salvarVOD);
 
+router.get('/vod/:id', vodController.mostrarVod);
+
+router.post('/alterarVisibilidadeVod', async (req, res) => {
+    const { link_vod, vod_publica } = req.body;
+    
     try {
+        // Converte o valor do checkbox em booleano
+        const isPublic = vod_publica === 'on' ? true : false;
+
+        // Query para atualizar a visibilidade da VOD no banco de dados
         const query = `
             UPDATE partidas
-            SET link_vod = $1
-            WHERE id_partida = $2 AND puuid = $3
+            SET vod_publica = $1
+            WHERE link_vod = $2
         `;
-        const values = [link_vod, partida_id, puuid];
-
+        const values = [isPublic, link_vod];
+        
+        // Executa a query no banco de dados
         await db.query(query, values);
 
-        res.status(200).send('VOD salvo com sucesso!');
+        // Redireciona de volta para a página da VOD após salvar
+        res.redirect(`/vod/${link_vod}`);
     } catch (error) {
-        console.error('Erro ao salvar o VOD:', error.message);
-        res.status(500).send('Erro ao salvar o VOD.');
+        console.error('Erro ao alterar visibilidade da VOD:', error);
+        res.status(500).send('Erro ao alterar visibilidade da VOD.');
     }
 });
 

@@ -22,7 +22,7 @@
         </div>
         <div class="ml-auto">
             <form id="logoffForm" action="/logoff" method="POST">
-                <button type="submit" class="btn btn-outline-custom">Sair</button>
+                <button type="submit" class="btn btn-outline-light">Sair</button>
             </form>
         </div>
     </nav>
@@ -197,7 +197,14 @@
                             <button class="btn btn-sm btn-link btn-center btn-mais-detalhes" data-toggle="collapse" data-target="#detalhes-<%= partida.id_partida %>" aria-expanded="false" aria-controls="detalhes-<%= partida.id_partida %>" onclick="toggleTextoDetalhes(this)">Mais detalhes</button>
                         
                             <!-- Botão para adicionar ou visualizar VOD -->
-                            <button class="btn btn-sm btn-link vod-btn" data-toggle="modal" data-target="#vodModal" data-partida-id="<%= partida.id_partida %>" data-link-vod="<%= partida.link_vod || '' %>">
+                            <button class="btn btn-sm btn-link vod-btn"
+                                <% if (partida.link_vod) { %>
+                                    onclick="window.location.href='/vod/<%= partida.link_vod %>'"
+                                <% } else { %>
+                                    data-toggle="modal" data-target="#vodModal"
+                                <% } %>
+                                data-partida-id="<%= partida.id_partida %>"
+                                data-link-vod="<%= partida.link_vod || '' %>">
                                 <%= partida.link_vod ? 'VOD Review >>' : 'Adicionar VOD +' %>
                             </button>
                         </div>
