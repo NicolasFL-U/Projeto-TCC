@@ -51,6 +51,8 @@ router.post('/salvarVod', vodController.salvarVOD);
 
 router.get('/vod/:id', vodController.mostrarVod);
 
+router.get('/api/vod/:id/tags-comentarios', vodController.buscarTagsComentarios);
+
 router.post('/alterarVisibilidadeVod', async (req, res) => {
     const { link_vod, vod_publica } = req.body;
     

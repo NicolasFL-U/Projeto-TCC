@@ -6,6 +6,13 @@
     <title>VOD da Partida <%= vod.id_partida %></title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/styles_vod.css" rel="stylesheet">
+
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    </script>
 </head>
 <body>
     <!-- Navbar -->
@@ -36,7 +43,17 @@
     <div class="container-principal">
         <!-- Vídeo da VOD -->
         <div class="video-container">
-            <iframe width="850" height="480" src="https://www.youtube.com/embed/<%= vod.link_vod %>" frameborder="0"></iframe>
+            <!-- Replace this existing iframe -->
+            <!-- <iframe id="vodPlayer" width="850" height="480" src="https://www.youtube.com/embed/<%= vod.link_vod %>" frameborder="0"></iframe> -->
+
+            <!-- With this div -->
+            <div id="vodPlayer"></div>
+
+            <!-- Sobreposição de Tags (parte superior) -->
+            <div id="tagOverlay" class="overlay tag-overlay"></div>
+
+            <!-- Sobreposição de Comentários (parte inferior) -->
+            <div id="comentarioOverlay" class="overlay comentario-overlay"></div>
         </div>
     
         <!-- Formulário dinâmico de TAG/Comentário -->
@@ -200,9 +217,132 @@
             });
         });
     </script>
+
+    <!-- Script do Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+
     <script>
-        const linkVod = '<%= vod.link_vod %>';
+        let player;
+    
+        // Attach the function to the global window object
+        window.onYouTubeIframeAPIReady = function() {
+            console.log('API pronta!');
+            player = new YT.Player('vodPlayer', {
+                height: '480',
+                width: '850',
+                videoId: '<%= vod.link_vod %>', // Ensure this variable is correctly outputting the video ID
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+    
+        function onPlayerReady(event) {
+            console.log('Player pronto!');
+            // Inicia a verificação do tempo a cada 1s quando o player estiver pronto
+            setInterval(verificarTempoDoVideo, 1000);
+        }
+    
+        function onPlayerStateChange(event) {
+            console.log('Mudança de estado do player');
+        }
+    
+        function verificarTempoDoVideo() {
+            const tempoAtual = Math.floor(player.getCurrentTime()); // Tempo atual do vídeo em segundos
+            verificarTagsComentarios(tempoAtual); // Chama a função para verificar exibição de tags/comentários
+        }
     </script>
+
+    <script>
+        function verificarTagsComentarios(tempoAtual) {
+            // Verifica se o tempo atual do vídeo está no intervalo de uma tag ou comentário
+            const tags = document.querySelectorAll('.tag-item');
+            const comentarios = document.querySelectorAll('.comentario-item');
+
+            tags.forEach(tag => {
+                const inicio = parseInt(tag.dataset.inicio, 10);
+                const fim = parseInt(tag.dataset.fim, 10);
+                
+                if (tempoAtual >= inicio && tempoAtual <= fim) {
+                    tag.style.display = 'block'; // Mostra a tag
+                } else {
+                    tag.style.display = 'none'; // Esconde a tag
+                }
+            });
+
+            comentarios.forEach(comentario => {
+                const inicio = parseInt(comentario.dataset.inicio, 10);
+                const fim = parseInt(comentario.dataset.fim, 10);
+
+                if (tempoAtual >= inicio && tempoAtual <= fim) {
+                    comentario.style.display = 'block'; // Mostra o comentário
+                } else {
+                    comentario.style.display = 'none'; // Esconde o comentário
+                }
+            });
+        }
+
+        function renderizarTags(tags) {
+            const tagOverlay = document.getElementById('tagOverlay');
+            tagOverlay.innerHTML = ''; // Limpa as tags anteriores
+            tags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.textContent = tag.tag;
+                tagElement.style.backgroundColor = `#${tag.cor}`;
+                tagElement.classList.add('tag-item');
+                tagElement.setAttribute('data-inicio', tag.inicio); // Armazena o tempo de início
+                tagElement.setAttribute('data-fim', tag.fim); // Armazena o tempo de fim
+                tagElement.style.display = 'none'; // Esconde inicialmente
+                tagOverlay.appendChild(tagElement);
+            });
+        }
+
+        function renderizarComentarios(comentarios) {
+            const comentarioOverlay = document.getElementById('comentarioOverlay');
+            comentarioOverlay.innerHTML = ''; // Limpa os comentários anteriores
+            comentarios.forEach(comentario => {
+                const comentarioElement = document.createElement('div');
+                comentarioElement.textContent = comentario.comentario;
+                comentarioElement.classList.add('comentario-item');
+                comentarioElement.setAttribute('data-inicio', comentario.inicio); // Armazena o tempo de início
+                comentarioElement.setAttribute('data-fim', comentario.fim); // Armazena o tempo de fim
+                comentarioElement.style.display = 'none'; // Esconde inicialmente
+                comentarioOverlay.appendChild(comentarioElement);
+            });
+        }
+
+        // Carregar tags e comentários via AJAX e renderizar
+        function carregarTagsComentarios() {
+            fetch(`/api/vod/${linkVod}/tags-comentarios`)
+                .then(response => response.json())
+                .then(data => {
+                    renderizarTags(data.tags);
+                    renderizarComentarios(data.comentarios);
+                })
+                .catch(error => console.error('Erro ao carregar tags e comentários:', error));
+        }
+
+        const socket = io(); // Conecta o cliente ao servidor Socket.io
+        const linkVod = '<%= vod.link_vod %>'; // ID da VOD
+
+        // Carregar as tags e comentários ao iniciar a página
+        carregarTagsComentarios();
+
+        // Ouvir eventos de novas tags e comentários via Socket.io
+        socket.on('novaTag', (data) => {
+            if (data.link_vod === linkVod) {
+                carregarTagsComentarios();
+            }
+        });
+
+        socket.on('novoComentario', (data) => {
+            if (data.link_vod === linkVod) {
+                carregarTagsComentarios();
+            }
+        });
+    </script>
+
     <script src="/js/scripts_vod.js"></script>
 </body>
 </html>

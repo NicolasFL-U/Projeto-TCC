@@ -195,3 +195,35 @@ iframe {
     padding: 0 10px;
     color: #fff;
 }
+
+/* Estilos de sobreposição para as tags e comentários */
+.overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    pointer-events: none; /* Permite que o vídeo seja clicável */
+}
+
+.tag-overlay {
+    top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.comentario-overlay {
+    bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.tag-item, .comentario-item {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    display: none; /* Inicialmente escondido */
+    transition: opacity 0.5s ease; /* Adiciona transição suave */
+}

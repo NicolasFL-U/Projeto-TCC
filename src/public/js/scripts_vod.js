@@ -29,15 +29,11 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                // Se houver erro, exibir a mensagem no modal
                 document.getElementById('errorMessage').innerText = data.error;
                 $('#errorModal').modal('show');
             } else {
-                // Caso sucesso, avançar o vídeo para o tempo de início
-                const player = document.querySelector('iframe');
-                const playerSrc = player.src;
-                const newSrc = playerSrc.split('?')[0] + `?start=${inicio}&autoplay=1`;
-                player.src = newSrc;
+                socket.emit('novaTag', tagData); // Emite evento via Socket.io
+                renderizarTags([tagData]);
             }
         })
         .catch((error) => {
@@ -84,21 +80,17 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                // Se houver erro, exibir a mensagem no modal
                 document.getElementById('errorMessage').innerText = data.error;
-                $('#errorModal').modal('show'); // Mostra o modal de erro
+                $('#errorModal').modal('show');
             } else {
-                // Caso sucesso, avançar o vídeo para o tempo de início
-                const player = document.querySelector('iframe'); // Pegando o iframe do YouTube
-                const playerSrc = player.src;
-                const newSrc = playerSrc.split('?')[0] + `?start=${data.inicio}&autoplay=1`;
-                player.src = newSrc; // Atualiza o tempo de início no vídeo
+                socket.emit('novoComentario', comentarioData); // Emite evento via Socket.io
+                renderizarComentarios([comentarioData]);
             }
         })
         .catch((error) => {
             console.error('Erro ao adicionar Comentário:', error);
             document.getElementById('errorMessage').innerText = 'Ocorreu um erro inesperado. Tente novamente mais tarde.';
-            $('#errorModal').modal('show'); // Mostra o modal de erro
+            $('#errorModal').modal('show');
         });
     });
 
