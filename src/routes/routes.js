@@ -77,6 +77,10 @@ router.post('/alterarVisibilidadeVod', async (req, res) => {
     }
 });
 
+router.post('/adicionarTag', vodController.adicionarTag);
+
+router.post('/adicionarComentario', vodController.adicionarComentario);
+
 router.post('/logoff', usuarioController.deslogarUsuario);
 
 module.exports = router;

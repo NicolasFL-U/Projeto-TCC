@@ -32,12 +32,112 @@
         </div>
     </nav>
 
-    <!-- Corpo principal -->
-    <div class="container mt-4 text-center">
-        <div class="text-center mb-3">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= vod.link_vod %>" frameborder="0" allowfullscreen></iframe>
+    <!-- Corpo principal com vídeo e formulário ao lado -->
+    <div class="container-principal">
+        <!-- Vídeo da VOD -->
+        <div class="video-container">
+            <iframe width="850" height="480" src="https://www.youtube.com/embed/<%= vod.link_vod %>" frameborder="0"></iframe>
         </div>
-    </div>
+    
+        <!-- Formulário dinâmico de TAG/Comentário -->
+        <div class="form-container">
+            <div class="toggle-container">
+                <button id="toggle-tag" class="toggle-button active">TAG</button>
+                <button id="toggle-comment" class="toggle-button">Comentário</button>
+            </div>
+    
+            <div id="form-tag" class="form-section active">
+                <form id="tagForm">
+                    <div class="form-group">
+                        <div class="container-label">
+                            <label for="nomeTag">Nome (até 30 caracteres)</label>
+                            <span id="nomeTagError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Nome inválido</span>
+                        </div>
+                        <input type="text" class="form-control" id="nomeTag" maxlength="30" placeholder="Digite o nome da TAG">
+                    </div>
+            
+                    <div class="form-group">
+                        <label>Início e Fim</label>
+                        <div class="time-inputs">
+                            <input type="number" class="form-control" placeholder="Min" min="0" id="inicioMin" style="width: 45px;">:
+                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="inicioSeg" style="width: 45px;">
+                            <span> - </span>
+                            <input type="number" class="form-control" placeholder="Min" min="0" id="fimMin" style="width: 45px;">:
+                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="fimSeg" style="width: 45px;">
+                        </div>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="corTag">Cor</label>
+                        <select id="corTag" class="form-control">
+                            <option value="bd4a4a">Vermelho</option>
+                            <option value="bd844a">Laranja</option>
+                            <option value="ffff4f">Amarelo</option>
+                            <option value="6fff4f">Verde</option>
+                        </select>
+                    </div>
+            
+                    <!-- Botões na parte de baixo, alinhados à direita -->
+                    <div class="form-group d-flex justify-content-end" style="gap: 10px;">
+                        <button type="button" id="adicionarTag" class="btn btn-outline-primary">Adicionar</button>
+                        <button type="button" id="resetarTag" class="btn btn-outline-secondary">Resetar</button>
+                    </div>
+                </form>
+            </div>            
+    
+            <div id="form-comment" class="form-section hidden">
+                <form id="commentForm">
+                    <div class="form-group">
+                        <div class="container-label">
+                            <label for="comentario">Comentário (até 200 caracteres)</label>
+                            <span id="comentarioError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Comentário inválido</span>
+                        </div>
+                        <textarea id="comentario" class="form-control" rows="4" maxlength="200" placeholder="Digite seu comentário" style="resize: none;"></textarea>
+                    </div>
+            
+                    <div class="form-group">
+                        <label>Início e Fim</label>
+                        <div class="time-inputs">
+                            <input type="number" class="form-control" placeholder="Min" min="0" id="inicioMinComment" style="width: 45px;">:
+                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="inicioSegComment" style="width: 45px;">
+                            <span> - </span>
+                            <input type="number" class="form-control" placeholder="Min" min="0" id="fimMinComment" style="width: 45px;">:
+                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="fimSegComment" style="width: 45px;">
+                        </div>
+                    </div>
+            
+                    <!-- Botões -->
+                    <div class="form-group d-flex justify-content-end" style="gap: 10px;">
+                        <button type="button" id="adicionarComentario" class="btn btn-outline-primary">Adicionar</button>
+                        <button type="button" id="resetarComentario" class="btn btn-outline-secondary">Resetar</button>
+                    </div>
+                </form>
+            </div>            
+        </div>
+    </div>          
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ao carregar a página, garantimos que o formulário de TAG esteja visível e o botão TAG esteja ativo
+            document.getElementById('form-tag').classList.add('active');
+            document.getElementById('toggle-tag').classList.add('active');
+            document.getElementById('form-comment').classList.remove('active');
+        });
+
+        document.getElementById('toggle-tag').addEventListener('click', function() {
+            document.getElementById('form-tag').classList.add('active');
+            document.getElementById('form-comment').classList.remove('active');
+            this.classList.add('active');
+            document.getElementById('toggle-comment').classList.remove('active');
+        });
+
+        document.getElementById('toggle-comment').addEventListener('click', function() {
+            document.getElementById('form-comment').classList.add('active');
+            document.getElementById('form-tag').classList.remove('active');
+            this.classList.add('active');
+            document.getElementById('toggle-tag').classList.remove('active');
+        });
+    </script>
 
     <!-- Modal de Configurações -->
     <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="configModalLabel" aria-hidden="true">
@@ -67,6 +167,23 @@
         </div>
     </div>
 
+    <!-- Modal de erro -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Erro</h5>
+                </div>
+                <div class="modal-body" id="errorMessage">
+                    <!-- A mensagem de erro será inserida aqui via JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -83,5 +200,10 @@
             });
         });
     </script>
+    <script>
+        const linkVod = '<%= vod.link_vod %>';
+    </script>
+    <script src="/js/scripts_vod.js"></script>
 </body>
 </html>
+
