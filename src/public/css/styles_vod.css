@@ -117,34 +117,67 @@ iframe {
     align-items: flex-start; /* Alinha os elementos pelo topo */
     padding: 20px;
     gap: 10px; /* Adiciona uma margem de 10px entre o vídeo e o formulário */
+    height: auto; /* Deixa a altura automática para adaptação */
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
 /* Estilo do vídeo */
 .video-container {
     flex: 0.6;
-    padding-right: 0px;
-    max-width: 850px;
-    max-height: 480px;
+    position: relative;
+    width: 100%;
+    padding-bottom: 35%; /* Proporção 16:9 */
+    height: 0; /* A altura é controlada pelo padding-bottom */
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
 /* Formulário de TAG/Comentário */
 .form-container {
     flex: 0.4; /* Define a proporção do formulário em relação ao vídeo */
-    background-color: #181818;
+    position: relative;
+    padding-bottom: 35%;
+    overflow: hidden;
+}
+
+/* Form Content */
+.form-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     padding: 20px;
+    background-color: #181818;
     border-radius: 10px;
     border: 1px solid #333;
-    height: 480px; /* Altura fixa para coincidir com o vídeo */
     display: flex;
     flex-direction: column;
 }
 
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    margin-bottom: 0px;
+    gap: 10px;
+}
 
 /* Botões de alternância entre TAG e Comentário */
 .toggle-container {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+    gap: 10px;
 }
 
 .toggle-button {
@@ -155,7 +188,6 @@ iframe {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-right: 10px;
     text-align: center;
 }
 
@@ -173,13 +205,22 @@ iframe {
 }
 
 .form-section.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#tagForm, #commentForm {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
+/* Inputs de tempo */
 .time-inputs {
     display: flex;
     align-items: center;
@@ -188,9 +229,9 @@ iframe {
 }
 
 .time-inputs input {
-    flex: 1; /* Faz com que os inputs se ajustem automaticamente */
-    max-width: 100px; /* Limita a largura máxima dos inputs */
-    text-align: center; /* Centraliza o texto nos inputs */
+    flex: 1;
+    max-width: 100px;
+    text-align: center;
 }
 
 .time-inputs span {
@@ -208,24 +249,34 @@ iframe {
 }
 
 .tag-overlay {
-    top: 10px;
+    top: 50px;
     display: flex;
     justify-content: center;
 }
 
 .comentario-overlay {
-    bottom: 10px;
+    bottom: 75px;
     display: flex;
     justify-content: center;
 }
 
-.tag-item, .comentario-item {
-    background-color: rgba(0, 0, 0, 0.6);
+/* Ajuste para aumentar o tamanho da tag e adicionar transparência */
+.tag-item {
     color: #fff;
-    padding: 5px 10px;
+    padding: 5px 7px; /* Aumenta o padding para ampliar o tamanho do campo */
     margin: 5px;
     border-radius: 5px;
-    font-size: 14px;
-    display: none; /* Inicialmente escondido */
-    transition: opacity 0.5s ease; /* Adiciona transição suave */
+    font-size: 18px; /* Aumenta o tamanho do texto */
+    display: none;
+    font-weight: bold; /* Adiciona negrito para destacar o texto */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+/* Ajustes para o comentário, removendo o background e aumentando o texto */
+.comentario-item {
+    color: #fff;
+    font-size: 20px; /* Aumenta levemente o tamanho do texto */
+    font-weight: bold; /* Deixa o texto mais visível */
+    display: none;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Adiciona sombra ao texto para visibilidade */
 }

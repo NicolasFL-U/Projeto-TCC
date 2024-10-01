@@ -58,103 +58,114 @@
     
         <!-- Formulário dinâmico de TAG/Comentário -->
         <div class="form-container">
-            <div class="toggle-container">
-                <button id="toggle-tag" class="toggle-button active">TAG</button>
-                <button id="toggle-comment" class="toggle-button">Comentário</button>
-            </div>
-    
-            <div id="form-tag" class="form-section active">
-                <form id="tagForm">
-                    <div class="form-group">
-                        <div class="container-label">
-                            <label for="nomeTag">Nome (até 30 caracteres)</label>
-                            <span id="nomeTagError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Nome inválido</span>
+            <div class="form-content">
+                <div class="toggle-container">
+                    <button id="toggle-tag" class="toggle-button active">TAG</button>
+                    <button id="toggle-comment" class="toggle-button">Comentário</button>
+                </div>
+        
+                <div id="form-tag" class="form-section active">
+                    <form id="tagForm">
+                        <div class="form-group">
+                            <div class="container-label">
+                                <label for="nomeTag">Nome (até 30 caracteres)</label>
+                                <span id="nomeTagError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Nome inválido</span>
+                            </div>
+                            <input type="text" class="form-control" id="nomeTag" maxlength="30" placeholder="Digite o nome da TAG">
                         </div>
-                        <input type="text" class="form-control" id="nomeTag" maxlength="30" placeholder="Digite o nome da TAG">
-                    </div>
-            
-                    <div class="form-group">
-                        <label>Início e Fim</label>
-                        <div class="time-inputs">
-                            <input type="number" class="form-control" placeholder="Min" min="0" id="inicioMin" style="width: 45px;">:
-                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="inicioSeg" style="width: 45px;">
-                            <span> - </span>
-                            <input type="number" class="form-control" placeholder="Min" min="0" id="fimMin" style="width: 45px;">:
-                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="fimSeg" style="width: 45px;">
+                
+                        <div class="form-group">
+                            <label>Início e Fim</label>
+                            <div class="time-inputs">
+                                <input type="number" class="form-control" placeholder="Min" min="0" id="inicioMin" style="width: 45px;">:
+                                <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="inicioSeg" style="width: 45px;">
+                                <span> - </span>
+                                <input type="number" class="form-control" placeholder="Min" min="0" id="fimMin" style="width: 45px;">:
+                                <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="fimSeg" style="width: 45px;">
+                            </div>
                         </div>
-                    </div>
-            
-                    <div class="form-group">
-                        <label for="corTag">Cor</label>
-                        <select id="corTag" class="form-control">
-                            <option value="bd4a4a">Vermelho</option>
-                            <option value="bd844a">Laranja</option>
-                            <option value="ffff4f">Amarelo</option>
-                            <option value="6fff4f">Verde</option>
-                        </select>
-                    </div>
-            
-                    <!-- Botões na parte de baixo, alinhados à direita -->
-                    <div class="form-group d-flex justify-content-end" style="gap: 10px;">
-                        <button type="button" id="adicionarTag" class="btn btn-outline-primary">Adicionar</button>
-                        <button type="button" id="resetarTag" class="btn btn-outline-secondary">Resetar</button>
-                    </div>
-                </form>
-            </div>            
-    
-            <div id="form-comment" class="form-section hidden">
-                <form id="commentForm">
-                    <div class="form-group">
-                        <div class="container-label">
-                            <label for="comentario">Comentário (até 200 caracteres)</label>
-                            <span id="comentarioError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Comentário inválido</span>
+                
+                        <div class="form-group">
+                            <label for="corTag">Cor</label>
+                            <select id="corTag" class="form-control">
+                                <option value="bd4a4a">Vermelho</option>
+                                <option value="bd844a">Laranja</option>
+                                <option value="ffff4f">Amarelo</option>
+                                <option value="6fff4f">Verde</option>
+                            </select>
                         </div>
-                        <textarea id="comentario" class="form-control" rows="4" maxlength="200" placeholder="Digite seu comentário" style="resize: none;"></textarea>
-                    </div>
-            
-                    <div class="form-group">
-                        <label>Início e Fim</label>
-                        <div class="time-inputs">
-                            <input type="number" class="form-control" placeholder="Min" min="0" id="inicioMinComment" style="width: 45px;">:
-                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="inicioSegComment" style="width: 45px;">
-                            <span> - </span>
-                            <input type="number" class="form-control" placeholder="Min" min="0" id="fimMinComment" style="width: 45px;">:
-                            <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="fimSegComment" style="width: 45px;">
+                
+                        <!-- Botões na parte de baixo, alinhados à direita -->
+                        <div class="form-group button-group">
+                            <button type="button" id="adicionarTag" class="btn btn-outline-primary">Adicionar</button>
+                            <button type="button" id="resetarTag" class="btn btn-outline-secondary">Resetar</button>
                         </div>
-                    </div>
-            
-                    <!-- Botões -->
-                    <div class="form-group d-flex justify-content-end" style="gap: 10px;">
-                        <button type="button" id="adicionarComentario" class="btn btn-outline-primary">Adicionar</button>
-                        <button type="button" id="resetarComentario" class="btn btn-outline-secondary">Resetar</button>
-                    </div>
-                </form>
-            </div>            
+                    </form>
+                </div>            
+                <div id="form-comment" class="form-section hidden">
+                    <form id="commentForm">
+                        <div class="form-group">
+                            <div class="container-label">
+                                <label for="comentario">Comentário (até 200 caracteres)</label>
+                                <span id="comentarioError" class="text-danger" style="visibility: hidden; margin-left: 10px">*Comentário inválido</span>
+                            </div>
+                            <textarea id="comentario" class="form-control" rows="4" maxlength="200" placeholder="Digite seu comentário" style="resize: none;"></textarea>
+                        </div>
+                
+                        <div class="form-group">
+                            <label>Início e Fim</label>
+                            <div class="time-inputs">
+                                <input type="number" class="form-control" placeholder="Min" min="0" id="inicioMinComment" style="width: 45px;">:
+                                <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="inicioSegComment" style="width: 45px;">
+                                <span> - </span>
+                                <input type="number" class="form-control" placeholder="Min" min="0" id="fimMinComment" style="width: 45px;">:
+                                <input type="number" class="form-control" placeholder="Seg" min="0" max="59" id="fimSegComment" style="width: 45px;">
+                            </div>
+                        </div>
+                
+                        <!-- Botões -->
+                        <div class="form-group button-group">
+                            <button type="button" id="adicionarComentario" class="btn btn-outline-primary">Adicionar</button>
+                            <button type="button" id="resetarComentario" class="btn btn-outline-secondary">Resetar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>      
         </div>
     </div>          
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Ao carregar a página, garantimos que o formulário de TAG esteja visível e o botão TAG esteja ativo
+            // Garantir que o formulário de TAG esteja visível e o botão TAG esteja ativo no carregamento
             document.getElementById('form-tag').classList.add('active');
             document.getElementById('toggle-tag').classList.add('active');
-            document.getElementById('form-comment').classList.remove('active');
+            document.getElementById('form-comment').classList.add('hidden');
+    
+            // Alternar para o formulário de TAG
+            document.getElementById('toggle-tag').addEventListener('click', function() {
+                document.getElementById('form-tag').classList.remove('hidden');
+                document.getElementById('form-tag').classList.add('active');
+    
+                document.getElementById('form-comment').classList.add('hidden');
+                document.getElementById('form-comment').classList.remove('active');
+    
+                this.classList.add('active');
+                document.getElementById('toggle-comment').classList.remove('active');
+            });
+    
+            // Alternar para o formulário de Comentário
+            document.getElementById('toggle-comment').addEventListener('click', function() {
+                document.getElementById('form-comment').classList.remove('hidden');
+                document.getElementById('form-comment').classList.add('active');
+    
+                document.getElementById('form-tag').classList.add('hidden');
+                document.getElementById('form-tag').classList.remove('active');
+    
+                this.classList.add('active');
+                document.getElementById('toggle-tag').classList.remove('active');
+            });
         });
-
-        document.getElementById('toggle-tag').addEventListener('click', function() {
-            document.getElementById('form-tag').classList.add('active');
-            document.getElementById('form-comment').classList.remove('active');
-            this.classList.add('active');
-            document.getElementById('toggle-comment').classList.remove('active');
-        });
-
-        document.getElementById('toggle-comment').addEventListener('click', function() {
-            document.getElementById('form-comment').classList.add('active');
-            document.getElementById('form-tag').classList.remove('active');
-            this.classList.add('active');
-            document.getElementById('toggle-tag').classList.remove('active');
-        });
-    </script>
+    </script>    
 
     <!-- Modal de Configurações -->
     <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="configModalLabel" aria-hidden="true">
@@ -228,9 +239,7 @@
         window.onYouTubeIframeAPIReady = function() {
             console.log('API pronta!');
             player = new YT.Player('vodPlayer', {
-                height: '480',
-                width: '850',
-                videoId: '<%= vod.link_vod %>', // Ensure this variable is correctly outputting the video ID
+                videoId: '<%= vod.link_vod %>',
                 events: {
                     'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
@@ -289,13 +298,30 @@
             tags.forEach(tag => {
                 const tagElement = document.createElement('div');
                 tagElement.textContent = tag.tag;
-                tagElement.style.backgroundColor = `#${tag.cor}`;
+                tagElement.style.backgroundColor = `rgba(${hexToRgb(tag.cor)}, 0.6)`;
                 tagElement.classList.add('tag-item');
+                tagElement.classList.add('text-center');
                 tagElement.setAttribute('data-inicio', tag.inicio); // Armazena o tempo de início
                 tagElement.setAttribute('data-fim', tag.fim); // Armazena o tempo de fim
                 tagElement.style.display = 'none'; // Esconde inicialmente
                 tagOverlay.appendChild(tagElement);
             });
+        }
+
+        function hexToRgb(hex) {
+            // Remove o símbolo '#' se existir
+            hex = hex.replace('#', '');
+            // Converte de 3 dígitos hexadecimais para 6 dígitos
+            if (hex.length === 3) {
+                hex = hex.split('').map(function (hexDigit) {
+                    return hexDigit + hexDigit;
+                }).join('');
+            }
+            const bigint = parseInt(hex, 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return `${r}, ${g}, ${b}`; // Retorna no formato 'r, g, b'
         }
 
         function renderizarComentarios(comentarios) {
@@ -305,6 +331,7 @@
                 const comentarioElement = document.createElement('div');
                 comentarioElement.textContent = comentario.comentario;
                 comentarioElement.classList.add('comentario-item');
+                comentarioElement.classList.add('text-center');
                 comentarioElement.setAttribute('data-inicio', comentario.inicio); // Armazena o tempo de início
                 comentarioElement.setAttribute('data-fim', comentario.fim); // Armazena o tempo de fim
                 comentarioElement.style.display = 'none'; // Esconde inicialmente
