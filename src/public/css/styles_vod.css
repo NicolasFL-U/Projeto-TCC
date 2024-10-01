@@ -113,30 +113,32 @@ iframe {
 /* Estrutura principal */
 .container-principal {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: center; /* Centraliza os elementos horizontalmente */
+    align-items: flex-start; /* Alinha os elementos pelo topo */
     padding: 20px;
+    gap: 10px; /* Adiciona uma margem de 10px entre o vídeo e o formulário */
 }
 
 /* Estilo do vídeo */
 .video-container {
     flex: 0.6;
-    padding-right: 20px;
-    margin-left: 30px;
+    padding-right: 0px;
+    max-width: 850px;
+    max-height: 480px;
 }
 
 /* Formulário de TAG/Comentário */
 .form-container {
-    flex: 0.4;
+    flex: 0.4; /* Define a proporção do formulário em relação ao vídeo */
     background-color: #181818;
     padding: 20px;
     border-radius: 10px;
     border: 1px solid #333;
-    height: 480px;
+    height: 480px; /* Altura fixa para coincidir com o vídeo */
     display: flex;
     flex-direction: column;
-    margin-right: 30px;
 }
+
 
 /* Botões de alternância entre TAG e Comentário */
 .toggle-container {
