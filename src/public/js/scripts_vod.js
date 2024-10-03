@@ -107,3 +107,82 @@ document.addEventListener('DOMContentLoaded', function () {
 function converterTempoEmSegundos(min, seg) {
     return (parseInt(min) * 60) + parseInt(seg);
 }
+
+function renderizarTimeline(tags, comentarios) {
+    const timelineContent = document.getElementById('timelineContent');
+    timelineContent.innerHTML = ''; // Limpa a timeline anterior
+
+    // Combina tags e comentários e ordena pelo tempo de início
+    const itens = [...tags, ...comentarios].sort((a, b) => a.inicio - b.inicio);
+
+    itens.forEach(item => {
+        const timelineItem = document.createElement('div');
+        timelineItem.classList.add('timeline-item');
+
+        if (item.tag) {
+            // É uma tag
+            timelineItem.textContent = item.tag.length > 15 ? item.tag.substring(0, 15) + '...' : item.tag;
+            timelineItem.style.backgroundColor = `rgba(${hexToRgb(item.cor)}, 0.4)`; // Cor da tag
+        } else {
+            // É um comentário
+            timelineItem.textContent = item.comentario.length > 15 ? item.comentario.substring(0, 15) + '...' : item.comentario;
+            timelineItem.style.backgroundColor = 'lightgray'; // Cor para comentário
+        }
+
+        // Função para pular para o momento do item
+        timelineItem.addEventListener('click', () => {
+            player.seekTo(item.inicio);
+        });
+
+        // Adicionar botões de edição e exclusão
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('timeline-item-buttons');
+        
+        const editButton = document.createElement('button');
+        editButton.classList.add('edit-btn');
+        // Adicionar comportamento ao clicar no botão de editar
+        editButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Impede o clique no item
+            // Lógica de edição aqui
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-btn');
+        // Adicionar comportamento ao clicar no botão de deletar
+        deleteButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Impede o clique no item
+            // Lógica de exclusão aqui
+        });
+
+        buttonContainer.appendChild(editButton);
+        buttonContainer.appendChild(deleteButton);
+        timelineItem.appendChild(buttonContainer);
+
+        timelineContent.appendChild(timelineItem);
+    });
+}
+
+// Função que renderiza tanto a timeline quanto as tags/comentários
+function carregarTagsComentarios() {
+    fetch(`/api/vod/${linkVod}/tags-comentarios`)
+        .then(response => response.json())
+        .then(data => {
+            renderizarTags(data.tags);
+            renderizarComentarios(data.comentarios);
+            renderizarTimeline(data.tags, data.comentarios); // Renderiza a pseudo-timeline
+        })
+        .catch(error => console.error('Erro ao carregar tags e comentários:', error));
+}
+
+// Atualiza a timeline em tempo real via Socket.io
+socket.on('novaTag', (data) => {
+    if (data.link_vod === linkVod) {
+        carregarTagsComentarios();
+    }
+});
+
+socket.on('novoComentario', (data) => {
+    if (data.link_vod === linkVod) {
+        carregarTagsComentarios();
+    }
+});
