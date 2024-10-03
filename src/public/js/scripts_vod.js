@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('errorMessage').innerText = data.error;
                 $('#errorModal').modal('show');
             } else {
-                socket.emit('novaTag', tagData); // Emite evento via Socket.io
-                renderizarTags([tagData]);
+                socket.emit('novaTag', data); // Emite evento via Socket.io
+                carregarTagsComentarios(); 
             }
         })
         .catch((error) => {
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 $('#errorModal').modal('show');
             } else {
                 socket.emit('novoComentario', comentarioData); // Emite evento via Socket.io
-                renderizarComentarios([comentarioData]);
+                carregarTagsComentarios();
             }
         })
         .catch((error) => {
@@ -205,7 +205,6 @@ function renderizarTimeline(tags, comentarios) {
     });
 }
 
-// Função que renderiza tanto a timeline quanto as tags/comentários
 function carregarTagsComentarios() {
     fetch(`/api/vod/${linkVod}/tags-comentarios`)
         .then(response => response.json())
@@ -216,8 +215,6 @@ function carregarTagsComentarios() {
 
             // Limpa o conteúdo anterior
             timelineContent.innerHTML = '';
-
-            console.log(data.tags.length, data.comentarios.length);
 
             if (data.tags.length === 0 && data.comentarios.length === 0) {
                 // Não há tags/comentários, esconde a timeline e mostra a mensagem
@@ -230,10 +227,15 @@ function carregarTagsComentarios() {
 
                 // Renderiza os itens na timeline
                 renderizarTimeline(data.tags, data.comentarios);
+
+                // **Renderiza as tags e comentários nos overlays**
+                renderizarTags(data.tags);
+                renderizarComentarios(data.comentarios);
             }
         })
         .catch(error => console.error('Erro ao carregar tags e comentários:', error));
 }
+
 
 // Atualiza a timeline em tempo real via Socket.io
 socket.on('novaTag', (data) => {

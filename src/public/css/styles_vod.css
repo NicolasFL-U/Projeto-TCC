@@ -2,14 +2,11 @@ body {
     background-color: #121212;
     color: #ffffff;
     font-family: 'Roboto', sans-serif;
-    height: 100%;
+    height: 100vh;
     margin: 0;
     display: flex;
     flex-direction: column;
-}
-
-html, body {
-    height: 100%;
+    overflow: hidden;
 }
 
 .navbar {
@@ -113,53 +110,54 @@ iframe {
     left: 22px;
 }
 
+.main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
 /* Estilos personalizados para o formulário de TAG/Comentário */
 /* Estrutura principal */
 .container-principal {
     display: flex;
-    justify-content: center; /* Centraliza os elementos horizontalmente */
-    align-items: flex-start; /* Alinha os elementos pelo topo */
-    margin-top: 20px;
-    gap: 10px; /* Adiciona uma margem de 10px entre o vídeo e o formulário */
-    height: auto; /* Deixa a altura automática para adaptação */
-    margin-left: 50px;
-    margin-right: 50px;
+    flex: 8.5;
+    gap: 10px;
+    margin: 0 50px;
+    overflow: hidden;
 }
 
 /* Estilo do vídeo */
 .video-container {
     flex: 0.6;
     position: relative;
-    width: 100%;
-    padding-bottom: 33%; /* Proporção 16:9 */
-    height: 0; /* A altura é controlada pelo padding-bottom */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
 }
 
 .video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
-    border: none;
 }
 
-/* Formulário de TAG/Comentário */
 .form-container {
-    flex: 0.4; /* Define a proporção do formulário em relação ao vídeo */
-    position: relative;
-    padding-bottom: 33%;
+    flex: 0.4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
 }
 
-/* Form Content */
 .form-content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    height: 100%;
     padding: 20px;
     background-color: #181818;
     border-radius: 10px;
@@ -246,22 +244,24 @@ iframe {
 /* Estilos de sobreposição para as tags e comentários */
 .overlay {
     position: absolute;
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     z-index: 1000;
-    pointer-events: none; /* Permite que o vídeo seja clicável */
+    pointer-events: none; /* Allows clicks to pass through to the video */
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
 }
 
 .tag-overlay {
-    top: 50px;
-    display: flex;
-    justify-content: center;
+    align-items: flex-start;
+    padding-top: 5%;
 }
 
 .comentario-overlay {
-    bottom: 75px;
-    display: flex;
-    justify-content: center;
+    align-items: flex-end; 
+    padding-bottom: 12.5%; 
 }
 
 /* Ajuste para aumentar o tamanho da tag e adicionar transparência */
@@ -287,16 +287,13 @@ iframe {
 
 /* Estilos para o contêiner da timeline */
 .timeline-container {
+    flex: 1.5; /* Occupies 20% of available space */
     display: flex;
-    justify-content: left;
-    align-items: flex-start;
+    flex-direction: column;
     overflow-x: auto;
     overflow-y: hidden;
+    margin: 0 50px;
     margin-top: 20px;
-    margin-left: 50px;
-    margin-right: 50px;
-    box-sizing: content-box;
-    padding-bottom: 20px; /* Evita que a barra de rolagem sobreponha os itens */
 }
 
 .timeline-vazia {
@@ -308,13 +305,10 @@ iframe {
 }
 
 .timeline-content {
+    flex-grow: 1;
     display: flex;
     gap: 10px;
-    flex-wrap: nowrap;
-    height: auto;
-    box-sizing: border-box;
-    margin-bottom: 0;
-    padding-bottom: 0;
+    padding-bottom: 20px;
 }
 
 /* Estilos para os itens da timeline */
