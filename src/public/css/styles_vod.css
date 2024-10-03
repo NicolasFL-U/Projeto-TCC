@@ -8,6 +8,10 @@ body {
     flex-direction: column;
 }
 
+html, body {
+    height: 100%;
+}
+
 .navbar {
     width: 100%;
     margin: 0;
@@ -115,7 +119,7 @@ iframe {
     display: flex;
     justify-content: center; /* Centraliza os elementos horizontalmente */
     align-items: flex-start; /* Alinha os elementos pelo topo */
-    padding: 20px;
+    margin-top: 20px;
     gap: 10px; /* Adiciona uma margem de 10px entre o vídeo e o formulário */
     height: auto; /* Deixa a altura automática para adaptação */
     margin-left: 50px;
@@ -127,7 +131,7 @@ iframe {
     flex: 0.6;
     position: relative;
     width: 100%;
-    padding-bottom: 35%; /* Proporção 16:9 */
+    padding-bottom: 33%; /* Proporção 16:9 */
     height: 0; /* A altura é controlada pelo padding-bottom */
     overflow: hidden;
 }
@@ -145,7 +149,7 @@ iframe {
 .form-container {
     flex: 0.4; /* Define a proporção do formulário em relação ao vídeo */
     position: relative;
-    padding-bottom: 35%;
+    padding-bottom: 33%;
     overflow: hidden;
 }
 
@@ -284,63 +288,90 @@ iframe {
 /* Estilos para o contêiner da timeline */
 .timeline-container {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: flex-start;
-    margin-top: 20px;
-    height: calc(100vh - 100% - 20px); /* Resto da altura da página com margem inferior de 20px */
-    overflow-x: auto; /* Para permitir scroll horizontal, se necessário */
+    overflow-x: auto;
     overflow-y: hidden;
+    margin-top: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+    box-sizing: content-box;
+    padding-bottom: 20px; /* Evita que a barra de rolagem sobreponha os itens */
+}
+
+.timeline-vazia {
+    text-align: center;
+    font-size: 26px;
+    color: #fff;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .timeline-content {
     display: flex;
     gap: 10px;
     flex-wrap: nowrap;
-    height: 100%; /* Ocupa toda a altura */
+    height: auto;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 /* Estilos para os itens da timeline */
 .timeline-item {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
     align-items: center;
-    padding: 10px;
-    min-width: 120px; /* Largura mínima dos itens */
-    min-height: 80px; /* Altura mínima dos itens */
+    min-width: 150px;
+    max-width: 400px;
+    flex-shrink: 0;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 5px;
-    position: relative;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    height: auto;
+    padding: 2px; /* Reduzido para diminuir a altura */
 }
 
-.timeline-item:hover {
-    background-color: #e0e0e0;
+.timeline-item-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    word-break: break-word;
+    justify-content: center; /* Centraliza verticalmente */
+}
+
+.timeline-item-text {
+    text-align: center;
+    flex-grow: 1;
+    margin: 0 5px;
+    font-size: 0.9em;
+}
+
+.timeline-item-time {
+    text-align: center;
+    font-size: 0.8em;
+    color: #ffffff;
+    margin-top: 2px; /* Reduzido para diminuir a altura */
 }
 
 /* Botões de ação (editar e excluir) */
 .timeline-item-buttons {
-    position: absolute;
-    top: 10px;
-    right: 10px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    margin-left: 10px;
 }
 
 .timeline-item-buttons button {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 14px;
+    margin: 2px 0; /* Reduzido para diminuir a altura */
 }
 
-.timeline-item-buttons button.edit-btn::before {
-    content: "✏️"; /* Ícone de lápis */
-}
-
-.timeline-item-buttons button.delete-btn::before {
-    content: "🗑️"; /* Ícone de lixeira */
+.timeline-item-buttons button .icon {
+    width: 20px; /* Ajuste o tamanho conforme necessário */
+    height: 20px;
 }

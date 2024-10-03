@@ -100,7 +100,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('inicioSegComment').value = '';
         document.getElementById('fimMinComment').value = '';
         document.getElementById('fimSegComment').value = '';
-    });    
+    });
+
+    carregarTagsComentarios();
 });
 
 // Função para converter minutos e segundos em segundos
@@ -119,44 +121,85 @@ function renderizarTimeline(tags, comentarios) {
         const timelineItem = document.createElement('div');
         timelineItem.classList.add('timeline-item');
 
-        if (item.tag) {
-            // É uma tag
-            timelineItem.textContent = item.tag.length > 15 ? item.tag.substring(0, 15) + '...' : item.tag;
-            timelineItem.style.backgroundColor = `rgba(${hexToRgb(item.cor)}, 0.4)`; // Cor da tag
-        } else {
-            // É um comentário
-            timelineItem.textContent = item.comentario.length > 15 ? item.comentario.substring(0, 15) + '...' : item.comentario;
-            timelineItem.style.backgroundColor = 'lightgray'; // Cor para comentário
+        // Cria o contêiner de conteúdo
+        const contentContainer = document.createElement('div');
+        contentContainer.classList.add('timeline-item-content');
+
+        // Cria o elemento para o texto (nome da tag ou comentário)
+        const middleText = document.createElement('div');
+        middleText.classList.add('timeline-item-text');
+        let textContent = item.tag ? item.tag : item.comentario;
+        if (textContent.length > 20) {
+            textContent = textContent.substring(0, 20) + '...';
         }
+        middleText.textContent = textContent;
+
+        // Cria o elemento para o tempo de início
+        const bottomTime = document.createElement('div');
+        bottomTime.classList.add('timeline-item-time');
+        const minutes = Math.floor(item.inicio / 60);
+        const seconds = item.inicio % 60;
+        bottomTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        // Adiciona os elementos ao contêiner de conteúdo
+        contentContainer.appendChild(middleText);
+        contentContainer.appendChild(bottomTime);
 
         // Função para pular para o momento do item
         timelineItem.addEventListener('click', () => {
             player.seekTo(item.inicio);
         });
 
-        // Adicionar botões de edição e exclusão
+        // Cria o contêiner dos botões
         const buttonContainer = document.createElement('div');
         buttonContainer.classList.add('timeline-item-buttons');
-        
+
+        // Botão de editar com ícone SVG
         const editButton = document.createElement('button');
         editButton.classList.add('edit-btn');
-        // Adicionar comportamento ao clicar no botão de editar
         editButton.addEventListener('click', (e) => {
             e.stopPropagation(); // Impede o clique no item
             // Lógica de edição aqui
         });
 
+        // Cria o elemento img para o ícone de edição
+        const editIcon = document.createElement('img');
+        editIcon.src = '/icons/edit.svg'; // Ajuste o caminho conforme necessário
+        editIcon.alt = 'Editar';
+        editIcon.classList.add('icon');
+
+        editButton.appendChild(editIcon);
+
+        // Botão de remover com ícone SVG
         const deleteButton = document.createElement('button');
         deleteButton.classList.add('delete-btn');
-        // Adicionar comportamento ao clicar no botão de deletar
         deleteButton.addEventListener('click', (e) => {
             e.stopPropagation(); // Impede o clique no item
             // Lógica de exclusão aqui
         });
 
+        // Cria o elemento img para o ícone de remoção
+        const deleteIcon = document.createElement('img');
+        deleteIcon.src = '/icons/trash.svg'; // Ajuste o caminho conforme necessário
+        deleteIcon.alt = 'Remover';
+        deleteIcon.classList.add('icon');
+
+        deleteButton.appendChild(deleteIcon);
+
+        // Adiciona os botões ao contêiner
         buttonContainer.appendChild(editButton);
         buttonContainer.appendChild(deleteButton);
+
+        // Adiciona o contêiner de conteúdo e o contêiner de botões ao item da timeline
+        timelineItem.appendChild(contentContainer);
         timelineItem.appendChild(buttonContainer);
+
+        // Define a cor de fundo
+        if (item.tag) {
+            timelineItem.style.backgroundColor = `rgba(${hexToRgb(item.cor)}, 0.4)`; // Cor da tag
+        } else {
+            timelineItem.style.backgroundColor = '#181818'; 
+        }
 
         timelineContent.appendChild(timelineItem);
     });
@@ -167,9 +210,27 @@ function carregarTagsComentarios() {
     fetch(`/api/vod/${linkVod}/tags-comentarios`)
         .then(response => response.json())
         .then(data => {
-            renderizarTags(data.tags);
-            renderizarComentarios(data.comentarios);
-            renderizarTimeline(data.tags, data.comentarios); // Renderiza a pseudo-timeline
+            const timelineContainer = document.getElementById('timeline-container');
+            const timelineContent = document.getElementById('timelineContent');
+            const timelineVazia = document.getElementById('timeline-vazia');
+
+            // Limpa o conteúdo anterior
+            timelineContent.innerHTML = '';
+
+            console.log(data.tags.length, data.comentarios.length);
+
+            if (data.tags.length === 0 && data.comentarios.length === 0) {
+                // Não há tags/comentários, esconde a timeline e mostra a mensagem
+                timelineContainer.style.visibility = 'hidden';
+                timelineVazia.style.visibility = 'visible';
+            } else {
+                // Há tags/comentários, mostra a timeline e esconde a mensagem
+                timelineContainer.style.visibility = 'visible';
+                timelineVazia.style.visibility = 'hidden';
+
+                // Renderiza os itens na timeline
+                renderizarTimeline(data.tags, data.comentarios);
+            }
         })
         .catch(error => console.error('Erro ao carregar tags e comentários:', error));
 }

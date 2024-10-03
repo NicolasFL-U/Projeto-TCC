@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOD da Partida <%= vod.id_partida %></title>
+    <title>VOD Review</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/styles_vod.css" rel="stylesheet">
 
@@ -135,10 +135,14 @@
     </div>          
 
     <!-- Lista de timeline abaixo do container-principal -->
-    <div class="timeline-container">
+    <div id="timeline-container" class="timeline-container" style="visibility: hidden;">
         <div id="timelineContent" class="timeline-content"></div>
     </div>
     
+    <div id="timeline-vazia" class="timeline-vazia">
+        Insira uma TAG ou um Comentário para poder ver a Timeline!
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Garantir que o formulário de TAG esteja visível e o botão TAG esteja ativo no carregamento
@@ -212,6 +216,68 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Item</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editItemId">
+                        <div class="form-group">
+                            <label for="editNomeTag">Nome</label>
+                            <input type="text" class="form-control" id="editNomeTag" placeholder="Nome da Tag/Comentário">
+                        </div>
+                        <div class="form-group">
+                            <label>Início e Fim</label>
+                            <div class="time-inputs">
+                                <input type="number" class="form-control" placeholder="Min" id="editInicioMin" style="width: 45px;">:
+                                <input type="number" class="form-control" placeholder="Seg" id="editInicioSeg" style="width: 45px;">
+                                <span> - </span>
+                                <input type="number" class="form-control" placeholder="Min" id="editFimMin" style="width: 45px;">:
+                                <input type="number" class="form-control" placeholder="Seg" id="editFimSeg" style="width: 45px;">
+                            </div>
+                        </div>
+                        <div class="form-group" id="editCorTagContainer">
+                            <label for="editCorTag">Cor</label>
+                            <select id="editCorTag" class="form-control">
+                                <option value="bd4a4a">Vermelho</option>
+                                <option value="bd844a">Laranja</option>
+                                <option value="ffff4f">Amarelo</option>
+                                <option value="6fff4f">Verde</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="salvarEdicao">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Remoção -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Remoção</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Deseja realmente remover a/o tag/comentário "<span id="deleteItemName"></span>"?</p>
+                    <input type="hidden" id="deleteItemId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmarRemocao">Remover</button>
                 </div>
             </div>
         </div>
@@ -344,35 +410,8 @@
             });
         }
 
-        // Carregar tags e comentários via AJAX e renderizar
-        function carregarTagsComentarios() {
-            fetch(`/api/vod/${linkVod}/tags-comentarios`)
-                .then(response => response.json())
-                .then(data => {
-                    renderizarTags(data.tags);
-                    renderizarComentarios(data.comentarios);
-                })
-                .catch(error => console.error('Erro ao carregar tags e comentários:', error));
-        }
-
         const socket = io(); // Conecta o cliente ao servidor Socket.io
         const linkVod = '<%= vod.link_vod %>'; // ID da VOD
-
-        // Carregar as tags e comentários ao iniciar a página
-        carregarTagsComentarios();
-
-        // Ouvir eventos de novas tags e comentários via Socket.io
-        socket.on('novaTag', (data) => {
-            if (data.link_vod === linkVod) {
-                carregarTagsComentarios();
-            }
-        });
-
-        socket.on('novoComentario', (data) => {
-            if (data.link_vod === linkVod) {
-                carregarTagsComentarios();
-            }
-        });
     </script>
 
     <script src="/js/scripts_vod.js"></script>
