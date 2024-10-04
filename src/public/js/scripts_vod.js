@@ -106,26 +106,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('salvarEdicao').addEventListener('click', function() {
         const id = document.getElementById('editItemId').value;
-        const nome = document.getElementById('editNomeTag').value;
+        const tipo = document.getElementById('editTipo').value;
+    
         const inicioMin = document.getElementById('editInicioMin').value;
         const inicioSeg = document.getElementById('editInicioSeg').value;
         const fimMin = document.getElementById('editFimMin').value;
         const fimSeg = document.getElementById('editFimSeg').value;
-        const cor = document.getElementById('editCorTag').value;
-        const tipo = document.getElementById('editTipo').value;
     
         const inicio = converterTempoEmSegundos(inicioMin, inicioSeg);
         const fim = converterTempoEmSegundos(fimMin, fimSeg);
+    
+        let nome;
+        let cor;
+    
+        if (tipo === 'tag') {
+            nome = document.getElementById('editNomeTag').value;
+            cor = document.getElementById('editCorTag').value;
+        } else if (tipo === 'comentario') {
+            nome = document.getElementById('editComentario').value;
+            // Não precisamos da cor para comentários
+        }
     
         const data = {
             id: id,
             nome: nome,
             inicio: inicio,
             fim: fim,
-            cor: cor,
             link_vod: linkVod,
             tipo: tipo
         };
+    
+        // Adiciona a cor apenas se for uma tag
+        if (tipo === 'tag') {
+            data.cor = cor;
+        }
     
         fetch(`/editarItem/${id}`, {
             method: 'PUT',
@@ -135,13 +149,13 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify(data),
         })
         .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                document.getElementById('errorMessage').innerText = data.error;
+        .then(responseData => {
+            if (responseData.error) {
+                document.getElementById('errorMessage').innerText = responseData.error;
                 $('#editModal').modal('hide');
                 $('#errorModal').modal('show');
             } else {
-                socket.emit('atualizarItem', data); // Emitir o evento para todos os clientes conectados
+                socket.emit('atualizarItem', responseData); // Emitir o evento para todos os clientes conectados
                 $('#editModal').modal('hide');
                 carregarTagsComentarios();
             }
