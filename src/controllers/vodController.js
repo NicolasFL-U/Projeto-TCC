@@ -1,5 +1,6 @@
 const Vod = require('../models/vod');
 const db = require('../database');
+const axios = require('axios');
 
 exports.salvarVOD = async (req, res) => {
     const { partida_id, link_vod } = req.body;
@@ -12,8 +13,8 @@ exports.salvarVOD = async (req, res) => {
     const match = link_vod.match(youtubeRegex);
 
     if (!match) {
-        // Se o link não for válido, ignorar e retornar um erro
-        return res.status(400).send('Link inválido. O link deve seguir o formato https://www.youtube.com/watch?v=[id]');
+        // Se o link não for válido, retorna erro
+        return res.status(400).json({ error: 'Link inválido. O link deve seguir o formato:\nhttps://www.youtube.com/watch?v=[id]' });
     }
 
     // Se o link for válido, extrair o ID do vídeo e sanitizar removendo caracteres inválidos
@@ -23,7 +24,25 @@ exports.salvarVOD = async (req, res) => {
     videoId = videoId.replace(/[^a-zA-Z0-9_-]/g, '');
 
     try {
-        // Query para atualizar a partida com o ID do VOD (em vez de todo o link)
+        // 1. Verifica se o link_vod já existe para outra partida
+        const queryVerificar = `SELECT id_partida FROM partidas WHERE link_vod = $1 AND id_partida != $2`;
+        const { rows: partidasExistentes } = await db.query(queryVerificar, [videoId, partida_id]);
+
+        if (partidasExistentes.length > 0) {
+            return res.status(409).json({ error: 'Este link já está associado a outra partida.' });
+        }
+
+        // 2. Verifica se o ID do vídeo existe no YouTube usando a API do YouTube
+        const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+        const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${youtubeApiKey}&part=id`;
+
+        const response = await axios.get(youtubeApiUrl);
+        if (response.data.items.length === 0) {
+            // O vídeo não existe
+            return res.status(404).json({ error: 'O vídeo não foi encontrado no YouTube. Verifique o link.' });
+        }
+
+        // 3. Atualiza a partida com o ID do VOD
         const query = `
             UPDATE partidas
             SET link_vod = $1
@@ -35,10 +54,10 @@ exports.salvarVOD = async (req, res) => {
         await db.query(query, values);
 
         // Retorna uma resposta de sucesso
-        res.status(200).send('VOD salvo com sucesso!');
+        res.status(200).json({ message: 'VOD salvo com sucesso!' });
     } catch (error) {
         console.error('Erro ao salvar o VOD:', error.message);
-        res.status(500).send('Erro ao salvar o VOD.');
+        res.status(500).json({ error: 'Erro ao salvar o VOD.' });
     }
 };
 
