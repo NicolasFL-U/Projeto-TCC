@@ -32,10 +32,12 @@
             </ul>
         </div>
         <div class="ml-auto">
+            <% if (isDono) { %> <!-- Apenas exibe se isDono for verdadeiro -->
             <!-- Botão de configurações -->
             <button type="button" class="btn btn-outline-light" data-toggle="modal" data-target="#configModal">
                 <img src="/images/gear-icon.png" alt="Configurações" style="width: 24px; height: 24px;">
             </button>
+            <% } %>
         </div>
     </nav>
 
@@ -136,11 +138,11 @@
         </div>          
 
         <!-- Lista de timeline abaixo do container-principal -->
-        <div id="timeline-container" class="timeline-container" style="visibility: hidden;">
+        <div id="timeline-container" class="timeline-container" style="display: none;">
             <div id="timelineContent" class="timeline-content"></div>
         </div>
         
-        <div id="timeline-vazia" class="timeline-vazia">
+        <div id="timeline-vazia" class="timeline-vazia" style="display: none;">
             Insira uma TAG ou um Comentário para poder ver a Timeline!
         </div>
     </div>
@@ -233,20 +235,32 @@
                 <div class="modal-body">
                     <form id="editForm">
                         <input type="hidden" id="editItemId">
-                        <div class="form-group">
+                        <input type="hidden" id="editTipo">
+                        
+                        <!-- Campo para nome ou comentário -->
+                        <div class="form-group" id="editNomeTagContainer">
                             <label for="editNomeTag">Nome</label>
-                            <input type="text" class="form-control" id="editNomeTag" placeholder="Nome da Tag/Comentário">
+                            <input type="text" class="form-control" id="editNomeTag" placeholder="Nome da Tag" maxlength="30">
                         </div>
+                        
+                        <div class="form-group" id="editComentarioContainer" style="display: none;">
+                            <label for="editComentario">Comentário</label>
+                            <textarea class="form-control" id="editComentario" rows="5" maxlength="200" placeholder="Comentário (até 200 caracteres)" style="resize: none;"></textarea>
+                        </div>
+
+                        <!-- Campos de tempo de início e fim (compartilhados para ambos) -->
                         <div class="form-group">
                             <label>Início e Fim</label>
                             <div class="time-inputs">
-                                <input type="number" class="form-control" placeholder="Min" id="editInicioMin" style="width: 45px;">:
-                                <input type="number" class="form-control" placeholder="Seg" id="editInicioSeg" style="width: 45px;">
+                                <input type="number" class="form-control" placeholder="Min" id="editInicioMin" style="width: 45px;" min="0">:
+                                <input type="number" class="form-control" placeholder="Seg" id="editInicioSeg" style="width: 45px;" min="0" max="59">
                                 <span> - </span>
-                                <input type="number" class="form-control" placeholder="Min" id="editFimMin" style="width: 45px;">:
-                                <input type="number" class="form-control" placeholder="Seg" id="editFimSeg" style="width: 45px;">
+                                <input type="number" class="form-control" placeholder="Min" id="editFimMin" style="width: 45px;" min="0">:
+                                <input type="number" class="form-control" placeholder="Seg" id="editFimSeg" style="width: 45px;" min="0" max="59">
                             </div>
                         </div>
+
+                        <!-- Campo seletor de cor (somente para tags) -->
                         <div class="form-group" id="editCorTagContainer">
                             <label for="editCorTag">Cor</label>
                             <select id="editCorTag" class="form-control">
@@ -274,8 +288,9 @@
                     <h5 class="modal-title" id="deleteModalLabel">Confirmar Remoção</h5>
                 </div>
                 <div class="modal-body">
-                    <p>Deseja realmente remover a/o tag/comentário "<span id="deleteItemName"></span>"?</p>
+                    <p id="deleteItemMessage"></p> <!-- Aqui mostraremos a mensagem personalizada -->
                     <input type="hidden" id="deleteItemId">
+                    <input type="hidden" id="deleteTipo">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
@@ -374,8 +389,9 @@
                 tagElement.style.backgroundColor = `rgba(${hexToRgb(tag.cor)}, 0.6)`;
                 tagElement.classList.add('tag-item');
                 tagElement.classList.add('text-center');
-                tagElement.setAttribute('data-inicio', tag.inicio); // Armazena o tempo de início
-                tagElement.setAttribute('data-fim', tag.fim); // Armazena o tempo de fim
+                tagElement.setAttribute('data-inicio', tag.inicio);
+                tagElement.setAttribute('data-fim', tag.fim);
+                tagElement.setAttribute('data-id', tag.id); // Adiciona o ID da tag
                 tagElement.style.display = 'none'; // Esconde inicialmente
                 tagOverlay.appendChild(tagElement);
             });
@@ -405,15 +421,19 @@
                 comentarioElement.textContent = comentario.comentario;
                 comentarioElement.classList.add('comentario-item');
                 comentarioElement.classList.add('text-center');
-                comentarioElement.setAttribute('data-inicio', comentario.inicio); // Armazena o tempo de início
-                comentarioElement.setAttribute('data-fim', comentario.fim); // Armazena o tempo de fim
-                comentarioElement.style.display = 'none'; // Esconde inicialmente
+                comentarioElement.setAttribute('data-inicio', comentario.inicio);
+                comentarioElement.setAttribute('data-fim', comentario.fim);
+                comentarioElement.setAttribute('data-id', comentario.id); // Adiciona o ID do comentário
+                comentarioElement.style.display = 'none';
                 comentarioOverlay.appendChild(comentarioElement);
             });
         }
 
         const socket = io(); // Conecta o cliente ao servidor Socket.io
         const linkVod = '<%= vod.link_vod %>'; // ID da VOD
+
+        // Faz o cliente ingressar na sala do VOD correspondente
+        socket.emit('joinVodRoom', linkVod);
     </script>
 
     <script src="/js/scripts_vod.js"></script>

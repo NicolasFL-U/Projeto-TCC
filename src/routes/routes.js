@@ -53,35 +53,15 @@ router.get('/vod/:id', vodController.mostrarVod);
 
 router.get('/api/vod/:id/tags-comentarios', vodController.buscarTagsComentarios);
 
-router.post('/alterarVisibilidadeVod', async (req, res) => {
-    const { link_vod, vod_publica } = req.body;
-    
-    try {
-        // Converte o valor do checkbox em booleano
-        const isPublic = vod_publica === 'on' ? true : false;
-
-        // Query para atualizar a visibilidade da VOD no banco de dados
-        const query = `
-            UPDATE partidas
-            SET vod_publica = $1
-            WHERE link_vod = $2
-        `;
-        const values = [isPublic, link_vod];
-        
-        // Executa a query no banco de dados
-        await db.query(query, values);
-
-        // Redireciona de volta para a página da VOD após salvar
-        res.redirect(`/vod/${link_vod}`);
-    } catch (error) {
-        console.error('Erro ao alterar visibilidade da VOD:', error);
-        res.status(500).send('Erro ao alterar visibilidade da VOD.');
-    }
-});
+router.post('/alterarVisibilidadeVod', vodController.alterarVisibilidadeVod);
 
 router.post('/adicionarTag', vodController.adicionarTag);
 
 router.post('/adicionarComentario', vodController.adicionarComentario);
+
+router.put('/editarItem/:id', vodController.editarItem);
+
+router.delete('/removerItem/:id', vodController.removerItem);
 
 router.post('/logoff', usuarioController.deslogarUsuario);
 

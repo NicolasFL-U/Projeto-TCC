@@ -116,7 +116,6 @@ iframe {
     flex-direction: column;
     overflow: hidden;
     margin-top: 20px;
-    margin-bottom: 20px;
     margin-left: 50px;
     margin-right: 50px;
 }
@@ -231,7 +230,7 @@ iframe {
 }
 
 .time-inputs input {
-    flex: 1;
+    flex: 2;
     max-width: 100px;
     text-align: center;
 }
@@ -287,21 +286,25 @@ iframe {
 
 /* Estilos para o contêiner da timeline */
 .timeline-container {
-    flex: 1.5; /* Occupies 20% of available space */
+    flex: 1.5;
     display: flex;
     flex-direction: column;
     overflow-x: auto;
     overflow-y: hidden;
     margin: 0 50px;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .timeline-vazia {
     text-align: center;
     font-size: 26px;
     color: #fff;
-    margin-top: auto;
-    margin-bottom: auto;
+    margin: 0; /* Remove margens para evitar deslocamentos */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    flex-grow: 1; /* Permite que a div cresça para ocupar o espaço disponível */
 }
 
 .timeline-content {

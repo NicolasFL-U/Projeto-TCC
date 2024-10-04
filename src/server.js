@@ -37,6 +37,12 @@ app.use(routes);
 io.on('connection', (socket) => {
     console.log('Novo cliente conectado:', socket.id);
 
+    // Cliente entra em uma sala específica baseada no VOD
+    socket.on('joinVodRoom', (vodId) => {
+        console.log(`Cliente ${socket.id} entrou na sala VOD: ${vodId}`);
+        socket.join(vodId); // Cliente ingressa na sala da VOD
+    });
+
     socket.on('disconnect', () => {
         console.log('Cliente desconectado:', socket.id);
     });
