@@ -471,6 +471,7 @@ module.exports = {
     obterMetasLivres,
     adicionarMetaEspecifica,
     atualizarProgressoMetaEspecifica,
+    alterarMetaEspecifica,
     removerMetaEspecifica,
     adicionarMetaLivre,
     atualizarStatusMetaLivre,

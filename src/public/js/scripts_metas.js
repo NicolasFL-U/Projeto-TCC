@@ -1,3 +1,11 @@
+window.abrirModalExclusao = function(id, tipo, nome) {
+    idMetaExcluir = id;
+    tipoMetaExcluir = tipo;
+    nomeMetaExcluir = nome;
+    document.getElementById('metaNomeExcluir').textContent = nome;
+    $('#confirmDeleteModal').modal('show');
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const statusMessage = document.getElementById('statusMessage');
     const metasList = document.getElementById('metasList');
@@ -23,6 +31,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return elos[numero] || 'Desconhecido';
     }
 
+    // Requisição para excluir meta
+    document.getElementById('confirmDeleteButton').addEventListener('click', function() {
+        if (idMetaExcluir && tipoMetaExcluir) {
+            fetch('/removerMeta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: idMetaExcluir, tipo: tipoMetaExcluir })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Erro ao excluir meta: ' + data.error);
+                } else {
+                    alert('Meta excluída com sucesso');
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Erro ao excluir meta:', error));
+        }
+    });
+
     // Requisição para obter metas
     fetch('/obterMetas')
         .then(response => response.json())
@@ -43,40 +74,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 let progressoAtualBarra = 0;
                 let corProgresso;
                 
-                // Garantindo que progresso_atual e objetivo sejam números
                 const progressoAtual = parseFloat(meta.progresso_atual) || 0;
                 const objetivo = parseFloat(meta.objetivo) || 1;
 
-                // Definindo o progresso conforme o tipo de meta
                 if (meta.tipo === 'livre') {
                     progressoTexto = meta.status ? 'Completo' : 'Incompleto';
-                    progressoAtualBarra = meta.status ? 100 : 0; // 100% preenchido se completo, 0% se incompleto
+                    progressoAtualBarra = meta.status ? 100 : 0; 
                 } else if (meta.tipo === 'objetivo_elo') {
                     const eloAtual = mapNumberToElo(Math.round(progressoAtual));
                     const eloObjetivo = mapNumberToElo(objetivo);
                     progressoTexto = `${eloAtual} / ${eloObjetivo}`;
                     progressoAtualBarra = (progressoAtual / objetivo) * 100;
                 } else {
-                    // Verifica se o progresso é completo ou acima do objetivo
                     if (progressoAtual >= objetivo) {
                         progressoTexto = `Completo (${progressoAtual}/${objetivo})`;
                         progressoAtualBarra = 100;
                     } else {
                         progressoAtualBarra = (progressoAtual / objetivo) * 100;
-
-                        // Determinando se o progresso deve ser inteiro ou decimal
-                        if (Number.isInteger(objetivo)) {
-                            progressoTexto = `${Math.round(progressoAtual)}/${objetivo}`;
-                        } else {
-                            progressoTexto = `${progressoAtual.toFixed(1)}/${objetivo.toFixed(1)}`;
-                        }
+                        progressoTexto = Number.isInteger(objetivo) ? `${Math.round(progressoAtual)}/${objetivo}` : `${progressoAtual.toFixed(1)}/${objetivo.toFixed(1)}`;
                     }
                 }
 
-                // Cor do progresso baseada na proporção completada
                 corProgresso = calcularCorProgresso(progressoAtualBarra / 100);
 
-                // Template para cada meta, preenchido conforme progresso
                 listItem.innerHTML = `
                     <div class="d-flex justify-content-between" style="width: 100%">
                         <div class="meta-conteudo">
@@ -95,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button class="btn btn-link" style="padding: 0px; margin-top: 0;">
                                 <img src="/icons/edit.svg" alt="Editar" class="meta-icon">
                             </button>
-                            <button class="btn btn-link" style="padding: 0px; margin-bottom: 0;">
+                            <button class="btn btn-link" style="padding: 0px; margin-top: 0;" onclick="abrirModalExclusao(${meta.id}, '${meta.tipo}', '${nomeMeta}')">
                                 <img src="/icons/trash.svg" alt="Excluir" class="meta-icon">
                             </button>
                         </div>

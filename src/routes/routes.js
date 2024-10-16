@@ -61,6 +61,7 @@ router.get('/obterMetas', metaController.obterMetas);
 router.post('/adicionarMeta', metaController.adicionarMeta);
 router.post('/removerMeta', metaController.removerMeta);
 router.post('/atualizarMetas', metaController.atualizarMetas);
+router.post('/alterarMetaEspecifica', metaController.alterarMetaEspecifica);
 
 // Logoff
 router.post('/logoff', usuarioController.deslogarUsuario);

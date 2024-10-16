@@ -1,4 +1,11 @@
-const metas = require('../models/meta');
+const { obterMetasEspecificas,
+        obterMetasLivres,
+        adicionarMetaEspecifica,
+        adicionarMetaLivre,
+        atualizarProgressoMetaEspecifica,
+        alterarMetaEspecifica,
+        removerMetaEspecifica,
+        removerMetaLivre } = require('../models/meta');
 
 exports.mostrarMetas = (req, res) => {
     const email = req.session.email; // Assumindo que o e-mail está salvo na sessão
@@ -20,8 +27,8 @@ exports.obterMetas = async (req, res) => {
 
     try {
         // Obtendo as metas específicas e livres
-        const metasEspecificas = await metas.obterMetasEspecificas(puuid);
-        const metasLivres = await metas.obterMetasLivres(puuid);
+        const metasEspecificas = await obterMetasEspecificas(puuid);
+        const metasLivres = await obterMetasLivres(puuid);
 
         // Retorna um JSON com ambas as listas de metas em um formato padronizado
         res.json({
@@ -33,7 +40,6 @@ exports.obterMetas = async (req, res) => {
         res.status(500).json({ error: 'Erro ao obter metas' });
     }
 };
-
 
 exports.adicionarMeta = async (req, res) => {
     const { tipo, nome, tipoMeta, objetivo, limite } = req.body;
@@ -66,7 +72,7 @@ exports.adicionarMeta = async (req, res) => {
         console.error('Erro ao adicionar meta:', error);
         res.status(500).json({ error: error.message });
     }
-}
+};
 
 exports.atualizarMetas = async (req, res) => {
     const puuid = req.session.puuid;
@@ -89,7 +95,31 @@ exports.atualizarMetas = async (req, res) => {
         console.error('Erro ao atualizar metas:', error);
         res.status(500).json({ error: error.message });
     }
-}
+};
+
+exports.alterarMetaEspecifica = async (req, res) => {
+    const puuid = req.session.puuid;
+    const { idMeta, novoObjetivo } = req.body;
+
+    // Verificar se o usuário está autenticado
+    if (!puuid) {
+        return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    try {
+        // Chamar a função de alteração da meta específica
+        const metaAtualizada = await alterarMetaEspecifica(idMeta, parseFloat(novoObjetivo), puuid);
+
+        // Responder com a meta atualizada
+        res.status(200).json({
+            message: 'Meta atualizada com sucesso',
+            meta: metaAtualizada
+        });
+    } catch (error) {
+        console.error('Erro ao alterar a meta específica:', error);
+        res.status(500).json({ error: 'Erro ao alterar a meta específica' });
+    }
+};
 
 exports.removerMeta = async (req, res) => {
     const { tipo, id } = req.body;
@@ -116,4 +146,4 @@ exports.removerMeta = async (req, res) => {
         console.error('Erro ao excluir meta:', error);
         res.status(500).json({ error: error.message });
     }
-}
+};
