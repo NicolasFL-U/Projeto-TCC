@@ -1,0 +1,126 @@
+html, body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    margin: 0;
+}
+
+.navbar {
+    width: 100%;
+    margin: 0;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color:#ffffff;
+}
+
+.nav-link {
+    color: #ffffff;
+    font-size: 1.2rem; /* Tamanho da fonte inicial */
+    transition: font-size 0.15s ease-in-out; /* Transição suave */
+    margin-left: 15px;
+    margin-right: 15px
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    font-size: 1.4rem; /* Tamanho da fonte ao passar o mouse */
+}
+
+.navbar-centered {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.container {
+    width: 50%;
+}
+
+.meta-item {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.meta-conteudo {
+    flex: 9.5;
+    margin-right: 10px;
+}
+
+.meta-nome {
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.meta-progresso-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.meta-progresso-text {
+    font-size: 0.9rem;
+    color: #bbbbbb;
+    position: absolute;
+    left: 0;
+}
+
+.meta-progress-bar {
+    height: 10px;
+    background-color: #333333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+.meta-progresso-num {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* Div contendo 2 botões, um em cima do outro */
+.meta-acoes {
+    flex: 0.5;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.btn-link {
+    display: flex; /* torna o botão flexível */
+    align-items: center;
+    justify-content: right;
+    flex: 1; /* cada botão ocupa 50% do espaço disponível */
+    height: 50%; /* define a altura de cada botão */
+    padding: 0; /* remove o padding padrão */
+    margin: 0; /* remove margem padrão */
+}
+
+.meta-icon {
+    width: auto;  
+    height: 100%; 
+    object-fit: contain; 
+}
+
+.btn-link:not(:last-child) {
+    margin-bottom: 20px;
+}

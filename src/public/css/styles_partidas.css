@@ -40,7 +40,7 @@ body {
 }
 
 .container {
-    max-width: 750px;
+    width: 50%;
 }
 
 .list-group-item {
