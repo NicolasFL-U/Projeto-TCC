@@ -7,8 +7,11 @@ window.abrirModalExclusao = function(id, tipo, nome) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    carregarCampeoes();
+    
     const statusMessage = document.getElementById('statusMessage');
     const metasList = document.getElementById('metasList');
+    const errorMessage = document.getElementById('errorMessage');
 
     // Função para calcular a cor da barra de progresso
     function calcularCorProgresso(proporcao) {
@@ -44,13 +47,18 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    alert('Erro ao excluir meta: ' + data.error);
+                    errorMessage.textContent = 'Erro ao excluir meta: ' + data.error;
+                    $('#confirmDeleteModal').modal('hide');
+                    $('#errorModal').modal('show');
                 } else {
-                    alert('Meta excluída com sucesso');
                     location.reload();
                 }
             })
-            .catch(error => console.error('Erro ao excluir meta:', error));
+            .catch(error => {
+                console.error('Erro ao excluir meta:', error);
+                errorMessage.textContent = 'Erro ao excluir meta: ' + error.message;
+                $('#errorModal').modal('show');
+            });
         }
     });
 
@@ -128,4 +136,114 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erro ao carregar as metas:', error);
             statusMessage.textContent = 'Erro ao carregar as metas. Tente novamente mais tarde.';
         });
+
+    // Definir a primeira opção como padrão para cada seletor
+    document.getElementById('tipoMeta').selectedIndex = 0;
+    document.getElementById('tipoMetaEspecifica').selectedIndex = 0;
+    document.getElementById('campeaoMeta').selectedIndex = 0;
+    document.getElementById('rotaMeta').selectedIndex = 0;
+    document.getElementById('eloMeta').selectedIndex = 0;
+
+    // Controle da exibição de campos conforme o tipo de meta
+    document.getElementById('tipoMeta').addEventListener('change', function() {
+        const tipo = this.value;
+        document.getElementById('campoNomeMeta').style.display = tipo === 'livre' ? 'block' : 'none';
+        document.getElementById('camposMetaEspecifica').style.display = tipo === 'especifica' ? 'block' : 'none';
+    });
+
+    document.getElementById('tipoMetaEspecifica').addEventListener('change', function() {
+        const tipoMetaEspecifica = this.value;
+    
+        // Mostrar ou ocultar campos conforme o tipo selecionado
+        document.getElementById('campoCampeaoMeta').style.display = tipoMetaEspecifica === 'partidas_campeao' ? 'block' : 'none';
+        document.getElementById('campoRotaMeta').style.display = tipoMetaEspecifica === 'partidas_rota' ? 'block' : 'none';
+        document.getElementById('campoLimiteMeta').style.display = ['media_cs', 'media_wr'].includes(tipoMetaEspecifica) ? 'block' : 'none';
+        document.getElementById('campoEloMeta').style.display = tipoMetaEspecifica === 'objetivo_elo' ? 'block' : 'none';
+        
+        // Se for um objetivo de elo, o campo objetivo padrão desaparece
+        document.getElementById('campoObjetivoMeta').style.display = tipoMetaEspecifica !== 'objetivo_elo' ? 'block' : 'none';
+    });
+
+    // Abrir o modal para adicionar uma meta
+    document.getElementById('btnAdicionar').addEventListener('click', function() {
+        $('#adicionarMetaModal').modal('show');
+    });
+
+    // Adicionar a meta ao confirmar
+    document.getElementById('confirmAddButton').addEventListener('click', function() {
+        const tipo = document.getElementById('tipoMeta').value;
+        let body;
+
+        if (tipo === 'livre') {
+            body = {
+                tipo: 'livre',
+                nome: document.getElementById('nomeMeta').value
+            };
+        } else if (tipo === 'especifica') {
+            const tipoMetaEspecifica = document.getElementById('tipoMetaEspecifica').value;
+
+            // Se o tipo for objetivo_elo, usa o valor do campo eloMeta para definir o objetivo
+            const objetivo = tipoMetaEspecifica === 'objetivo_elo'
+                ? parseInt(document.getElementById('eloMeta').value)
+                : parseFloat(document.getElementById('objetivoMeta').value);
+            
+            const limite = document.getElementById('limiteMeta').value ? parseInt(document.getElementById('limiteMeta').value) : null;
+            
+            body = {
+                tipo: 'especifica',
+                tipoMeta: tipoMetaEspecifica,
+                objetivo,
+                limite: ['media_cs', 'media_wr'].includes(tipoMetaEspecifica) ? limite : null
+            };
+
+            if (tipoMetaEspecifica === 'partidas_campeao') {
+                body.tipoMeta = `partidas_campeao_${document.getElementById('campeaoMeta').value}`;
+            } else if (tipoMetaEspecifica === 'partidas_rota') {
+                body.tipoMeta = `partidas_rota_${document.getElementById('rotaMeta').value}`;
+            }
+        }
+
+        fetch('/adicionarMeta', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                $('#errorModal').modal('show');
+                document.getElementById('errorMessage').textContent = data.error;
+            } else {
+                alert('Meta adicionada com sucesso');
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Erro ao adicionar meta:', error));
+    });
 });
+
+// Função para popular o campo de seleção de campeões
+function carregarCampeoes() {
+    fetch('/obterCampeoes')
+        .then(response => response.json())
+        .then(data => {
+            const campeaoSelect = document.getElementById('campeaoMeta');
+            campeaoSelect.innerHTML = ''; // Limpar o select antes de preencher
+
+            if (data.campeoes && Array.isArray(data.campeoes)) {
+                data.campeoes.forEach(campeao => {
+                    const option = document.createElement('option');
+                    option.value = campeao;
+                    option.textContent = campeao;
+                    campeaoSelect.appendChild(option);
+                });
+            } else {
+                console.error('Erro: Lista de campeões não disponível');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar lista de campeões:', error);
+        });
+}

@@ -7,6 +7,9 @@ const { obterMetasEspecificas,
         removerMetaEspecifica,
         removerMetaLivre } = require('../models/meta');
 
+const path = require('path');
+const fs = require('fs');
+
 exports.mostrarMetas = (req, res) => {
     const email = req.session.email; // Assumindo que o e-mail está salvo na sessão
     const usuario = req.session.puuid; // Assumindo que o PUUID está salvo na sessão
@@ -146,4 +149,30 @@ exports.removerMeta = async (req, res) => {
         console.error('Erro ao excluir meta:', error);
         res.status(500).json({ error: error.message });
     }
+};
+
+exports.obterCampeoes = (req, res) => {
+    const filePath = path.join(__dirname, '../utils/champion.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Erro ao ler o arquivo de campeões:', err);
+            return res.status(500).json({ error: 'Erro ao carregar lista de campeões' });
+        }
+
+        try {
+            const champions = JSON.parse(data);
+
+            // Verifique se "champions.data" existe corretamente
+            if (!champions.data) {
+                throw new Error('Formato inválido no arquivo de campeões');
+            }
+
+            const championList = Object.keys(champions.data).sort();  // Pega os nomes dos campeões e ordena alfabeticamente
+            res.status(200).json({ campeoes: championList });  // Certifique-se de que está enviando a chave correta 'campeoes'
+        } catch (parseError) {
+            console.error('Erro ao analisar o JSON de campeões:', parseError);
+            res.status(500).json({ error: 'Erro ao processar lista de campeões' });
+        }
+    });
 };

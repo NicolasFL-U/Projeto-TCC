@@ -41,22 +41,150 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="/js/scripts_metas.js"></script>
 
+
     <!-- Modal de Confirmação de Exclusão -->
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="confirmDeleteLabel">Confirmar Exclusão</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     Você deseja realmente excluir a meta "<span id="metaNomeExcluir"></span>"?
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmDeleteButton" class="btn btn-outline-danger">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de erro -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Erro</h5>
+                </div>
+                <div class="modal-body" id="errorMessage">
+                    <!-- A mensagem de erro será inserida aqui via JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar Meta -->
+    <div class="modal fade" id="adicionarMetaModal" tabindex="-1" aria-labelledby="adicionarMetaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adicionarMetaModalLabel">Adicionar Meta</h5>
+                </div>
+                <div class="modal-body">
+                    <!-- Escolha entre meta livre ou específica -->
+                    <div class="form-group">
+                        <label for="tipoMeta">Tipo de Meta</label>
+                        <select id="tipoMeta" class="form-control">
+                            <option value="livre">Meta Livre</option>
+                            <option value="especifica">Meta Específica</option>
+                        </select>
+                    </div>
+
+                    <!-- Nome da Meta Livre -->
+                    <div id="campoNomeMeta" class="form-group">
+                        <label for="nomeMeta">Nome da Meta</label>
+                        <textarea id="nomeMeta" class="form-control" maxlength="100" placeholder="Digite o nome da meta (até 100 caracteres)"></textarea>
+                    </div>
+
+                    <!-- Seção para Meta Específica -->
+                    <div id="camposMetaEspecifica" style="display: none;">
+                        <div class="form-group">
+                            <label for="tipoMetaEspecifica">Tipo de Meta Específica</label>
+                            <select id="tipoMetaEspecifica" class="form-control">
+                                <option value="partidas_total">Jogar N partidas</option>
+                                <option value="partidas_campeao">Jogar N partidas com um Campeão</option>
+                                <option value="partidas_rota">Jogar N partidas em uma Rota</option>
+                                <option value="media_cs">Atingir uma média de CS/min</option>
+                                <option value="media_wr">Atingir uma média de Winrate</option>
+                                <option value="vod_reviews">Fazer N VOD reviews</option>
+                                <option value="objetivo_elo">Alcançar um Elo</option>
+                            </select>
+                        </div>
+
+                        <!-- Objetivo -->
+                        <div id="campoObjetivoMeta" class="form-group">
+                            <label for="objetivoMeta">Objetivo</label>
+                            <input type="number" id="objetivoMeta" class="form-control" placeholder="Defina o objetivo">
+                        </div>
+
+                        <!-- Limite -->
+                        <div id="campoLimiteMeta" class="form-group" style="display: none;">
+                            <label for="limiteMeta">Limite de Partidas</label>
+                            <input type="number" id="limiteMeta" class="form-control" placeholder="Defina o limite de partidas">
+                        </div>
+
+                        <!-- Seleção de Campeão -->
+                        <div id="campoCampeaoMeta" class="form-group" style="display: none;">
+                            <label for="campeaoMeta">Campeão</label>
+                            <select id="campeaoMeta" class="form-control">
+                                <!-- Popular este campo com os campeões do jogo -->
+                            </select>
+                        </div>
+
+                        <!-- Seleção de Rota -->
+                        <div id="campoRotaMeta" class="form-group" style="display: none;">
+                            <label for="rotaMeta">Rota</label>
+                            <select id="rotaMeta" class="form-control">
+                                <option value="TOP">TopLane</option>
+                                <option value="JUNGLE">Jungle</option>
+                                <option value="MIDDLE">MidLane</option>
+                                <option value="BOTTOM">AdCarry</option>
+                                <option value="UTILITY">Suporte</option>
+                            </select>
+                        </div>
+
+                        <!-- Seleção de Elo -->
+                        <div id="campoEloMeta" class="form-group" style="display: none;">
+                            <label for="eloMeta">Elo</label>
+                            <select id="eloMeta" class="form-control">
+                                <option value="27">Desafiante</option>
+                                <option value="26">Grão-Mestre</option>
+                                <option value="25">Mestre</option>
+                                <option value="24">Diamante I</option>
+                                <option value="23">Diamante II</option>
+                                <option value="22">Diamante III</option>
+                                <option value="21">Diamante IV</option>
+                                <option value="20">Esmeralda I</option>
+                                <option value="19">Esmeralda II</option>
+                                <option value="18">Esmeralda III</option>
+                                <option value="17">Esmeralda IV</option>
+                                <option value="16">Platina I</option>
+                                <option value="15">Platina II</option>
+                                <option value="14">Platina III</option>
+                                <option value="13">Platina IV</option>
+                                <option value="12">Ouro I</option>
+                                <option value="11">Ouro II</option>
+                                <option value="10">Ouro III</option>
+                                <option value="9">Ouro IV</option>
+                                <option value="8">Prata I</option>
+                                <option value="7">Prata II</option>
+                                <option value="6">Prata III</option>
+                                <option value="5">Prata IV</option>
+                                <option value="4">Ferro I</option>
+                                <option value="3">Ferro II</option>
+                                <option value="2">Ferro III</option>
+                                <option value="1">Ferro IV</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="button" id="confirmDeleteButton" class="btn btn-danger">Excluir</button>
+                    <button type="button" class="btn btn-primary" id="confirmAddButton">Adicionar</button>
                 </div>
             </div>
         </div>

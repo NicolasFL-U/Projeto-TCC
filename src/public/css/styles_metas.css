@@ -124,3 +124,23 @@ html, body {
 .btn-link:not(:last-child) {
     margin-bottom: 20px;
 }
+
+.modal-content {
+    background-color: #181818;
+    color: #ffffff;
+    border: 1px solid #333;
+}
+
+.modal-header {
+    border-bottom: 1px solid #333;
+}
+
+.modal-footer {
+    border-top: 1px solid #333;
+}
+
+#campeaoMeta {
+    max-height: 200px; /* Define a altura máxima do seletor */
+    overflow-y: auto;  /* Habilita a rolagem vertical quando o conteúdo exceder o limite */
+    box-sizing: border-box;
+}

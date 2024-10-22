@@ -73,7 +73,7 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
             case (tipo.match(/^partidas_rota_/) || {}).input:
                 const rota = tipo.replace('partidas_rota_', '').toUpperCase();
                 if (!['BOTTOM', 'JUNGLE', 'TOP', 'UTILITY', 'MIDDLE'].includes(rota) || objetivo <= 0 || objetivo >= 100000 || limite !== null) throw new Error('Parâmetros inválidos para meta do tipo "partidas na rota"');
-                const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND rota = $2', [puuid, rota]);
+                const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND role = $2', [puuid, rota]);
                 progressoAtual = partidasRota.rows[0].count;
                 // Ajustando a descrição com base na rota
                 if (rota === 'BOTTOM' || rota === 'UTILITY') {
@@ -84,9 +84,11 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 break;
 
             case 'media_cs':
-                if (objetivo <= 0.0 || objetivo > 10.0 || limite <= 0 || limite >= 100000) throw new Error('Parâmetros inválidos para meta do tipo "media de cs"');
+                if (objetivo <= 0.0 || objetivo > 10.0 || limite <= 0 || limite >= 100000) {
+                    throw new Error('Parâmetros inválidos para meta do tipo "media de cs"');
+                }
                 const mediaCsQuery = await db.query(
-                    `SELECT SUM((totalMinionsKilled + neutralMinionsKilled) / (duracao / 60)) / $1 as media_cs 
+                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida / 60) as media_cs 
                      FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
                     [limite, puuid]
                 );
@@ -125,9 +127,12 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 if (objetivo <= 0 || objetivo >= 100000 || limite !== null) throw new Error('Parâmetros inválidos para tipo "vod_reviews"');
                 const vodReviewsQuery = await db.query(
                     `SELECT COUNT(DISTINCT p.link_vod) as reviews
-                     FROM partidas p 
-                     JOIN tags t ON p.link_vod = t.link_vod OR p.link_vod = (SELECT link_vod FROM comentarios WHERE link_vod = p.link_vod)
-                     WHERE p.puuid = $1 AND p.link_vod IS NOT NULL`,
+                    FROM partidas p 
+                    LEFT JOIN tags t ON p.link_vod = t.link_vod
+                    LEFT JOIN comentarios c ON p.link_vod = c.link_vod
+                    WHERE p.puuid = $1
+                    AND p.link_vod IS NOT NULL
+                    AND (t.link_vod IS NOT NULL OR c.link_vod IS NOT NULL)`,
                     [puuid]
                 );
                 progressoAtual = vodReviewsQuery.rows[0].reviews || 0;
@@ -177,14 +182,14 @@ async function atualizarProgressoMetaEspecifica(idMeta) {
 
             case (tipo.match(/^partidas_rota_/) || {}).input:
                 const rota = tipo.replace('partidas_rota_', '').toUpperCase();
-                const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND rota = $2', [puuid, rota]);
+                const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND role = $2', [puuid, rota]);
                 progressoAtual = partidasRota.rows[0].count;
                 break;
 
             case 'media_cs':
                 const mediaCsQuery = await db.query(
-                    `SELECT SUM((totalMinionsKilled + neutralMinionsKilled) / (duracao / 60)) / $1 as media_cs 
-                     FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
+                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida / 60) as media_cs 
+                    FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
                     [limite, puuid]
                 );
                 progressoAtual = mediaCsQuery.rows[0].media_cs || 0;
@@ -280,16 +285,18 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
             case (tipo.match(/^partidas_rota_/) || {}).input:
                 const rota = tipo.replace('partidas_rota_', '').toUpperCase();
                 if (!['BOTTOM', 'JUNGLE', 'TOP', 'UTILITY', 'MIDDLE'].includes(rota) || novoObjetivo <= 0 || novoObjetivo >= 100000) throw new Error('Objetivo inválido para meta do tipo "partidas na rota"');
-                const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND rota = $2', [puuid, rota]);
+                const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND role = $2', [puuid, rota]);
                 progressoAtual = partidasRota.rows[0].count;
                 descricao = rota === 'BOTTOM' || rota === 'UTILITY' ? `Jogar ${novoObjetivo} partidas de ${rotaMap[rota]}` : `Jogar ${novoObjetivo} partidas na ${rotaMap[rota]}`;
                 break;
 
             case 'media_cs':
-                if (novoObjetivo <= 0.0 || novoObjetivo > 10.0 || limite <= 0 || limite >= 100000) throw new Error('Objetivo inválido para meta do tipo "media de cs"');
+                if (novoObjetivo <= 0.0 || novoObjetivo > 10.0 || limite <= 0 || limite >= 100000) {
+                    throw new Error('Objetivo inválido para meta do tipo "media de cs"');
+                }
                 const mediaCsQuery = await db.query(
-                    `SELECT SUM((totalMinionsKilled + neutralMinionsKilled) / (duracao / 60)) / $1 as media_cs 
-                     FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
+                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida / 60) as media_cs 
+                    FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
                     [limite, puuid]
                 );
                 progressoAtual = mediaCsQuery.rows[0].media_cs || 0;
