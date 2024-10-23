@@ -3,6 +3,7 @@ const { obterMetasEspecificas,
         adicionarMetaEspecifica,
         adicionarMetaLivre,
         atualizarProgressoMetaEspecifica,
+        atualizarStatusMetaLivre,
         alterarMetaEspecifica,
         removerMetaEspecifica,
         removerMetaLivre } = require('../models/meta');
@@ -119,6 +120,26 @@ exports.alterarMetaEspecifica = async (req, res) => {
     } catch (error) {
         console.error('Erro ao alterar a meta específica:', error);
         res.status(500).json({ error: 'Erro ao alterar a meta específica' });
+    }
+};
+
+// Controller para atualizar o status de uma meta livre
+exports.atualizarStatusMetaLivre = async (req, res) => {
+    const { idMeta } = req.body;  // Id da meta passada no corpo da requisição
+    const puuid = req.session.puuid;  // PUUID do usuário logado na sessão
+
+    if (!puuid) {
+        return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+    try {
+        // Chama a função do model para atualizar o status da meta
+        const metaAtualizada = await atualizarStatusMetaLivre(idMeta, puuid);
+
+        res.status(200).json({ message: 'Status da meta atualizado com sucesso', meta: metaAtualizada });
+    } catch (error) {
+        console.error('Erro ao atualizar status da meta livre:', error);
+        res.status(500).json({ error: error.message });
     }
 };
 

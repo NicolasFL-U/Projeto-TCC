@@ -6,6 +6,18 @@ window.abrirModalExclusao = function(id, tipo, nome) {
     $('#confirmDeleteModal').modal('show');
 };
 
+// Variáveis globais para armazenar o id e o nome da meta a ser alterada
+let idMetaStatus = null;
+let nomeMetaStatus = '';
+
+// Função para abrir o modal de confirmação ao tentar alterar o status
+window.abrirModalStatus = function(id, nome) {
+    idMetaStatus = id; // Armazena o id da meta
+    nomeMetaStatus = nome; // Armazena o nome da meta
+    document.getElementById('metaNomeStatus').textContent = nome; // Define o nome da meta no modal
+    $('#confirmStatusModal').modal('show'); // Abre o modal
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     carregarCampeoes();
     
@@ -90,15 +102,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 const objetivo = parseFloat(meta.objetivo) || 1;
 
                 if (meta.tipo === 'livre') {
+                    console.log("Meta livre:", meta);
                     progressoTexto = meta.status ? 'Completo' : 'Incompleto';
                     progressoAtualBarra = meta.status ? 100 : 0; 
+                    listItem.innerHTML = `
+                        <div class="d-flex justify-content-between" style="width: 100%">
+                            <div class="meta-conteudo">
+                                <h5 class="meta-nome">${nomeMeta}</h5>
+                                <div class="meta-progresso-container" style="margin-top: 20px; margin-bottom: 5px;">
+                                    <p class="meta-progresso-text">Progresso</p>
+                                    <p class="meta-progresso-num" style="color: ${calcularCorProgresso(progressoAtualBarra / 100)};">${progressoTexto}</p>
+                                </div>
+                                <div class="progress meta-progress-bar">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: ${progressoAtualBarra}%; background-color: ${calcularCorProgresso(progressoAtualBarra / 100)};">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="meta-acoes">
+                                <button class="btn btn-link" style="padding: 0px; margin-top: 0;" onclick="abrirModalStatus(${meta.id}, '${nomeMeta}')">
+                                    <img src="/icons/edit.svg" alt="Alterar Status" class="meta-icon">
+                                </button>
+                                <button class="btn btn-link" style="padding: 0px; margin-top: 0;" onclick="abrirModalExclusao(${meta.id}, '${meta.tipo}', '${nomeMeta}')">
+                                    <img src="/icons/trash.svg" alt="Excluir" class="meta-icon">
+                                </button>
+                            </div>
+                        </div>
+                    `;
                 } else if (meta.tipo_meta === 'objetivo_elo') {
                     const eloAtual = mapNumberToElo(Math.round(progressoAtual));
                     const eloObjetivo = mapNumberToElo(objetivo);
                     progressoTexto = `${eloAtual} / ${eloObjetivo}`;
                     progressoAtualBarra = (progressoAtual / objetivo) * 100;
                 } else if (meta.tipo_meta === 'media_cs') {
-                    // Meta de média de CS/min, ambos valores com 1 casa decimal
                     progressoTexto = `${formatarNumero(progressoAtual)} / ${formatarNumero(objetivo)}`;
                     progressoAtualBarra = (progressoAtual / objetivo) * 100;
                 } else if (meta.tipo_meta === 'media_wr') {
@@ -109,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     progressoTexto = `${progressoAtual} / ${objetivo}`;
                 }
                 
-                // Caso completo
                 if (progressoAtual >= objetivo) {
                     progressoTexto = 'Completo (' + progressoTexto + ')';
                     progressoAtualBarra = 100;
@@ -117,30 +152,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 corProgresso = calcularCorProgresso(progressoAtualBarra / 100);
 
-                listItem.innerHTML = `
-                    <div class="d-flex justify-content-between" style="width: 100%">
-                        <div class="meta-conteudo">
-                            <h5 class="meta-nome">${nomeMeta}</h5>
-                            <div class="meta-progresso-container" style="margin-top: 20px; margin-bottom: 5px;">
-                                <p class="meta-progresso-text">Progresso</p>
-                                <p class="meta-progresso-num" style="color: ${corProgresso};">${progressoTexto}</p>
-                            </div>
-                            <div class="progress meta-progress-bar">
-                                <div class="progress-bar" role="progressbar" 
-                                     style="width: ${progressoAtualBarra}%; background-color: ${corProgresso};">
+                if (meta.tipo !== 'livre') {
+                    listItem.innerHTML = `
+                        <div class="d-flex justify-content-between" style="width: 100%">
+                            <div class="meta-conteudo">
+                                <h5 class="meta-nome">${nomeMeta}</h5>
+                                <div class="meta-progresso-container" style="margin-top: 20px; margin-bottom: 5px;">
+                                    <p class="meta-progresso-text">Progresso</p>
+                                    <p class="meta-progresso-num" style="color: ${corProgresso};">${progressoTexto}</p>
+                                </div>
+                                <div class="progress meta-progress-bar">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: ${progressoAtualBarra}%; background-color: ${corProgresso};">
+                                    </div>
                                 </div>
                             </div>
+                            <div class="meta-acoes">
+                                <button class="btn btn-link" style="padding: 0px; margin-top: 0;">
+                                    <img src="/icons/edit.svg" alt="Editar" class="meta-icon">
+                                </button>
+                                <button class="btn btn-link" style="padding: 0px; margin-top: 0;" onclick="abrirModalExclusao(${meta.id}, '${meta.tipo}', '${nomeMeta}')">
+                                    <img src="/icons/trash.svg" alt="Excluir" class="meta-icon">
+                                </button>
+                                
+                            </div>
                         </div>
-                        <div class="meta-acoes">
-                            <button class="btn btn-link" style="padding: 0px; margin-top: 0;">
-                                <img src="/icons/edit.svg" alt="Editar" class="meta-icon">
-                            </button>
-                            <button class="btn btn-link" style="padding: 0px; margin-top: 0;" onclick="abrirModalExclusao(${meta.id}, '${meta.tipo}', '${nomeMeta}')">
-                                <img src="/icons/trash.svg" alt="Excluir" class="meta-icon">
-                            </button>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
                 metasList.appendChild(listItem);
             });
         })
@@ -173,10 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('campoLimiteMeta').style.display = ['media_cs', 'media_wr'].includes(tipoMetaEspecifica) ? 'block' : 'none';
         document.getElementById('campoEloMeta').style.display = tipoMetaEspecifica === 'objetivo_elo' ? 'block' : 'none';
         
-        // Se for um objetivo de elo, o campo objetivo padrão desaparece
         document.getElementById('campoObjetivoMeta').style.display = tipoMetaEspecifica !== 'objetivo_elo' ? 'block' : 'none';
     
-        // Alterar o texto do label conforme o tipo da meta
         switch(tipoMetaEspecifica) {
             case 'partidas_total':
             case 'partidas_campeao':
@@ -214,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (tipo === 'especifica') {
             const tipoMetaEspecifica = document.getElementById('tipoMetaEspecifica').value;
     
-            // Se o tipo for objetivo_elo, usa o valor do campo eloMeta para definir o objetivo
             const objetivo = tipoMetaEspecifica === 'objetivo_elo'
                 ? parseInt(document.getElementById('eloMeta').value)
                 : parseFloat(document.getElementById('objetivoMeta').value);
@@ -256,6 +291,38 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#errorModal').modal('show');
             document.getElementById('errorMessage').textContent = 'Erro ao adicionar meta. Tente novamente mais tarde.';
         });
+    });
+
+    // Função para alterar o status da meta livre ao confirmar no modal
+    document.getElementById('confirmStatusButton').addEventListener('click', function() {
+        if (idMetaStatus) {
+            fetch('/atualizarStatusMetaLivre', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ idMeta: idMetaStatus })
+            })
+            .then(response => {
+                console.log("Resposta da API:", response); // Verificar o conteúdo da resposta
+
+                // Certifique-se de que a resposta esteja retornando JSON antes de converter
+                if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
+                    return response.json(); // Somente tenta converter para JSON se for realmente JSON
+                } else {
+                    throw new Error('Resposta inesperada do servidor');
+                }
+            })
+            .then(data => {
+                if (data.error) {
+                } else {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao alterar o status da meta:', error);
+            });
+        }
     });
 });
 
