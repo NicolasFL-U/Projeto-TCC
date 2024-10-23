@@ -54,8 +54,7 @@ exports.adicionarMeta = async (req, res) => {
 
     try {
         let novaMeta;
-        
-        // Verificar o tipo de meta
+
         if (tipo === 'especifica') {
             if (!tipoMeta || !objetivo) {
                 throw new Error('Parâmetros inválidos para a meta específica');
@@ -72,8 +71,7 @@ exports.adicionarMeta = async (req, res) => {
 
         res.status(200).json({ message: 'Meta adicionada com sucesso', meta: novaMeta });
     } catch (error) {
-        console.error('Erro ao adicionar meta:', error);
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error.message });
     }
 };
 

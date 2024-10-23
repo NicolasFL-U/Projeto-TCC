@@ -11,16 +11,13 @@ async function obterMetasEspecificas(puuid) {
         ORDER BY data_criacao DESC;
     `;
     const { rows } = await db.query(query, [puuid]);
-    return rows.map(row => ({
-        ...row,
-        tipo: row.tipo_meta === 'objetivo_elo' ? 'objetivo_elo' : 'especifica'
-    }));
+    return rows;
 }
 
 // Função para obter metas livres
 async function obterMetasLivres(puuid) {
     const query = `
-        SELECT id, 'livre' AS tipo, nome_meta, status
+        SELECT id, 'livre' AS tipo, 'livre' AS tipo_meta, nome_meta, status
         FROM metas_livres
         WHERE puuid = $1
         ORDER BY data_criacao DESC;
@@ -56,6 +53,9 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
     try {
         switch (tipo) {
             case 'partidas_total':
+                // arredonda o objetivo caso venha com casas decimais
+                objetivo = Math.round(objetivo);
+
                 if (objetivo <= 0 || objetivo >= 100000 || limite !== null) throw new Error('Parâmetros inválidos para meta do tipo "partidas totais"');
                 const partidasTotal = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1', [puuid]);
                 progressoAtual = partidasTotal.rows[0].count;
@@ -63,6 +63,9 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 break;
 
             case (tipo.match(/^partidas_campeao_/) || {}).input:
+                // arredonda o objetivo caso venha com casas decimais
+                objetivo = Math.round(objetivo);
+
                 const campeao = tipo.replace('partidas_campeao_', '');
                 if (!champions.data[campeao] || objetivo <= 0 || objetivo >= 100000 || limite !== null) throw new Error('Parâmetros inválidos para meta do tipo "partidas com campeao"');
                 const partidasCampeao = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND campeao = $2', [puuid, campeao]);
@@ -71,7 +74,10 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 break;
 
             case (tipo.match(/^partidas_rota_/) || {}).input:
+                // arredonda o objetivo caso venha com casas decimais
+                objetivo = Math.round(objetivo);
                 const rota = tipo.replace('partidas_rota_', '').toUpperCase();
+
                 if (!['BOTTOM', 'JUNGLE', 'TOP', 'UTILITY', 'MIDDLE'].includes(rota) || objetivo <= 0 || objetivo >= 100000 || limite !== null) throw new Error('Parâmetros inválidos para meta do tipo "partidas na rota"');
                 const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND role = $2', [puuid, rota]);
                 progressoAtual = partidasRota.rows[0].count;
@@ -81,9 +87,13 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 } else {
                     descricao = `Jogar ${objetivo} partidas na ${rotaMap[rota]}`;
                 }
+
                 break;
 
             case 'media_cs':
+                // arredonda o objetivo para 1 casa decimal
+                objetivo = Math.round(objetivo * 10) / 10;
+
                 if (objetivo <= 0.0 || objetivo > 10.0 || limite <= 0 || limite >= 100000) {
                     throw new Error('Parâmetros inválidos para meta do tipo "media de cs"');
                 }
@@ -97,7 +107,12 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 break;
 
             case 'media_wr':
-                if (objetivo <= 0.0 || objetivo > 100.0 || limite <= 0 || limite >= 100000) throw new Error('Parâmetros inválidos para meta do tipo "media de wr"');
+                // arredonda o limite caso venha com casas decimais
+                limite = Math.round(limite);
+                // arredonda o objetivo para 1 casa decimal
+                objetivo = Math.round(objetivo * 10) / 10;
+
+                if (objetivo <= 0 || objetivo > 100 || limite <= 0 || limite >= 100000) throw new Error('Parâmetros inválidos para meta do tipo "media de wr"');
                 const mediaWrQuery = await db.query(
                     `SELECT COUNT(*) FILTER (WHERE resultado = 'Vitória') * 100.0 / COUNT(*) as winrate
                      FROM (SELECT * FROM partidas WHERE puuid = $1 ORDER BY data_partida DESC LIMIT $2) as ultimas_partidas`,
@@ -108,6 +123,9 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 break;
 
             case 'objetivo_elo':
+                // arredonda o objetivo caso venha com casas decimais
+                objetivo = Math.round(objetivo);
+
                 if (objetivo <= 0 || objetivo > 27 || limite !== null) throw new Error('Parâmetros inválidos para meta do tipo "objetivo de elo"');
                 const summonerIdQuery = await db.query('SELECT summoner_id FROM jogadores WHERE puuid = $1', [puuid]);
                 const summonerId = summonerIdQuery.rows[0]?.summoner_id;
@@ -124,6 +142,9 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 break;
 
             case 'vod_reviews':
+                // arredonda o objetivo caso venha com casas decimais
+                objetivo = Math.round(objetivo);
+
                 if (objetivo <= 0 || objetivo >= 100000 || limite !== null) throw new Error('Parâmetros inválidos para tipo "vod_reviews"');
                 const vodReviewsQuery = await db.query(
                     `SELECT COUNT(DISTINCT p.link_vod) as reviews
@@ -152,8 +173,7 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
         const result = await db.query(insertQuery, [puuid, tipo, objetivo, limite, progressoAtual, descricao]);
         return result.rows[0];
     } catch (error) {
-        console.error('Erro ao adicionar meta específica:', error);
-        throw new Error('Erro ao adicionar meta específica');
+        throw error;
     }
 }
 

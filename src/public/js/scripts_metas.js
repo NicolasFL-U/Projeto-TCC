@@ -34,6 +34,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return elos[numero] || 'Desconhecido';
     }
 
+    // Função para formatar números com 1 casa decimal
+    function formatarNumero(value) {
+        return parseFloat(value).toFixed(1);
+    }
+
     // Requisição para excluir meta
     document.getElementById('confirmDeleteButton').addEventListener('click', function() {
         if (idMetaExcluir && tipoMetaExcluir) {
@@ -55,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Erro ao excluir meta:', error);
                 errorMessage.textContent = 'Erro ao excluir meta: ' + error.message;
                 $('#errorModal').modal('show');
             });
@@ -88,19 +92,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (meta.tipo === 'livre') {
                     progressoTexto = meta.status ? 'Completo' : 'Incompleto';
                     progressoAtualBarra = meta.status ? 100 : 0; 
-                } else if (meta.tipo === 'objetivo_elo') {
+                } else if (meta.tipo_meta === 'objetivo_elo') {
                     const eloAtual = mapNumberToElo(Math.round(progressoAtual));
                     const eloObjetivo = mapNumberToElo(objetivo);
                     progressoTexto = `${eloAtual} / ${eloObjetivo}`;
                     progressoAtualBarra = (progressoAtual / objetivo) * 100;
+                } else if (meta.tipo_meta === 'media_cs') {
+                    // Meta de média de CS/min, ambos valores com 1 casa decimal
+                    progressoTexto = `${formatarNumero(progressoAtual)} / ${formatarNumero(objetivo)}`;
+                    progressoAtualBarra = (progressoAtual / objetivo) * 100;
+                } else if (meta.tipo_meta === 'media_wr') {
+                    progressoTexto = `${formatarNumero(progressoAtual)}% / ${formatarNumero(objetivo)}%`;
+                    progressoAtualBarra = (progressoAtual / objetivo) * 100;
                 } else {
-                    if (progressoAtual >= objetivo) {
-                        progressoTexto = `Completo (${progressoAtual}/${objetivo})`;
-                        progressoAtualBarra = 100;
-                    } else {
-                        progressoAtualBarra = (progressoAtual / objetivo) * 100;
-                        progressoTexto = Number.isInteger(objetivo) ? `${Math.round(progressoAtual)}/${objetivo}` : `${progressoAtual.toFixed(1)}/${objetivo.toFixed(1)}`;
-                    }
+                    progressoAtualBarra = (progressoAtual / objetivo) * 100;
+                    progressoTexto = `${progressoAtual} / ${objetivo}`;
+                }
+                
+                // Caso completo
+                if (progressoAtual >= objetivo) {
+                    progressoTexto = 'Completo (' + progressoTexto + ')';
+                    progressoAtualBarra = 100;
                 }
 
                 corProgresso = calcularCorProgresso(progressoAtualBarra / 100);
@@ -153,6 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('tipoMetaEspecifica').addEventListener('change', function() {
         const tipoMetaEspecifica = this.value;
+        const labelObjetivoMeta = document.querySelector('label[for="objetivoMeta"]');
     
         // Mostrar ou ocultar campos conforme o tipo selecionado
         document.getElementById('campoCampeaoMeta').style.display = tipoMetaEspecifica === 'partidas_campeao' ? 'block' : 'none';
@@ -162,6 +175,26 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Se for um objetivo de elo, o campo objetivo padrão desaparece
         document.getElementById('campoObjetivoMeta').style.display = tipoMetaEspecifica !== 'objetivo_elo' ? 'block' : 'none';
+    
+        // Alterar o texto do label conforme o tipo da meta
+        switch(tipoMetaEspecifica) {
+            case 'partidas_total':
+            case 'partidas_campeao':
+            case 'partidas_rota':
+                labelObjetivoMeta.textContent = "Quantidade de partidas";
+                break;
+            case 'media_cs':
+                labelObjetivoMeta.textContent = "Média (entre 0.0 a 10.0)";
+                break;
+            case 'media_wr':
+                labelObjetivoMeta.textContent = "Winrate em % (entre 0 a 100)";
+                break;
+            case 'vod_reviews':
+                labelObjetivoMeta.textContent = "Quantidade de VOD reviews";
+                break;
+            default:
+                labelObjetivoMeta.textContent = "Objetivo";
+        }
     });
 
     // Abrir o modal para adicionar uma meta
@@ -169,11 +202,10 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#adicionarMetaModal').modal('show');
     });
 
-    // Adicionar a meta ao confirmar
     document.getElementById('confirmAddButton').addEventListener('click', function() {
         const tipo = document.getElementById('tipoMeta').value;
         let body;
-
+    
         if (tipo === 'livre') {
             body = {
                 tipo: 'livre',
@@ -181,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         } else if (tipo === 'especifica') {
             const tipoMetaEspecifica = document.getElementById('tipoMetaEspecifica').value;
-
+    
             // Se o tipo for objetivo_elo, usa o valor do campo eloMeta para definir o objetivo
             const objetivo = tipoMetaEspecifica === 'objetivo_elo'
                 ? parseInt(document.getElementById('eloMeta').value)
@@ -195,14 +227,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 objetivo,
                 limite: ['media_cs', 'media_wr'].includes(tipoMetaEspecifica) ? limite : null
             };
-
+    
             if (tipoMetaEspecifica === 'partidas_campeao') {
                 body.tipoMeta = `partidas_campeao_${document.getElementById('campeaoMeta').value}`;
             } else if (tipoMetaEspecifica === 'partidas_rota') {
                 body.tipoMeta = `partidas_rota_${document.getElementById('rotaMeta').value}`;
             }
         }
-
+    
         fetch('/adicionarMeta', {
             method: 'POST',
             headers: {
@@ -213,14 +245,17 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
+                $('#adicionarMetaModal').modal('hide');
                 $('#errorModal').modal('show');
                 document.getElementById('errorMessage').textContent = data.error;
             } else {
-                alert('Meta adicionada com sucesso');
                 location.reload();
             }
         })
-        .catch(error => console.error('Erro ao adicionar meta:', error));
+        .catch(error => {
+            $('#errorModal').modal('show');
+            document.getElementById('errorMessage').textContent = 'Erro ao adicionar meta. Tente novamente mais tarde.';
+        });
     });
 });
 
