@@ -10,6 +10,7 @@ const { obterMetasEspecificas,
 
 const path = require('path');
 const fs = require('fs');
+const db = require('../database');
 
 exports.mostrarMetas = (req, res) => {
     const email = req.session.email; // Assumindo que o e-mail está salvo na sessão
@@ -101,16 +102,30 @@ exports.atualizarMetas = async (req, res) => {
 
 exports.alterarMetaEspecifica = async (req, res) => {
     const puuid = req.session.puuid;
-    const { idMeta, novoObjetivo } = req.body;
+    const { idMeta, novoObjetivo, novoLimite } = req.body;  // Incluindo novoLimite
 
     // Verificar se o usuário está autenticado
     if (!puuid) {
         return res.status(401).json({ error: 'Usuário não autenticado' });
     }
 
+    // Validação dos dados
+    if (isNaN(parseFloat(novoObjetivo)) || parseFloat(novoObjetivo) <= 0) {
+        return res.status(400).json({ error: 'O objetivo deve ser um número válido maior que 0' });
+    }
+
+    if (novoLimite && (isNaN(parseInt(novoLimite)) || parseInt(novoLimite) <= 0)) {
+        return res.status(400).json({ error: 'O limite deve ser um número válido maior que 0, se fornecido' });
+    }
+
     try {
-        // Chamar a função de alteração da meta específica
-        const metaAtualizada = await alterarMetaEspecifica(idMeta, parseFloat(novoObjetivo), puuid);
+        // Chamar a função de alteração da meta específica, passando também o limite
+        const metaAtualizada = await alterarMetaEspecifica(
+            idMeta, 
+            parseFloat(novoObjetivo), 
+            novoLimite ? parseInt(novoLimite) : null,  // Passar o novo limite se ele existir
+            puuid
+        );
 
         // Responder com a meta atualizada
         res.status(200).json({
@@ -118,8 +133,8 @@ exports.alterarMetaEspecifica = async (req, res) => {
             meta: metaAtualizada
         });
     } catch (error) {
-        console.error('Erro ao alterar a meta específica:', error);
-        res.status(500).json({ error: 'Erro ao alterar a meta específica' });
+        console.error('Erro ao atualizar meta específica:', error);
+        res.status(500).json({ error: error.message });
     }
 };
 

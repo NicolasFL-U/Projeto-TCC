@@ -98,10 +98,11 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                     throw new Error('Parâmetros inválidos para meta do tipo "media de cs"');
                 }
                 const mediaCsQuery = await db.query(
-                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida / 60) as media_cs 
+                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida::float / 60) as media_cs 
                      FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
                     [limite, puuid]
                 );
+                console.log(mediaCsQuery.rows[0]);
                 progressoAtual = mediaCsQuery.rows[0].media_cs || 0;
                 descricao = `Alcançar a média de ${objetivo} CS/min nas últimas ${limite} partidas`;
                 break;
@@ -184,7 +185,7 @@ async function atualizarProgressoMetaEspecifica(idMeta) {
         const meta = metaQuery.rows[0];
         if (!meta) throw new Error('Meta não encontrada');
 
-        const { puuid, tipo_meta: tipo, objetivo, limite_partidas: limite } = meta;
+        const { puuid, tipo_meta: tipo, limite_partidas: limite } = meta;
         let progressoAtual = 0;
 
         // Lógica de cálculo do progresso baseada no tipo
@@ -208,8 +209,8 @@ async function atualizarProgressoMetaEspecifica(idMeta) {
 
             case 'media_cs':
                 const mediaCsQuery = await db.query(
-                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida / 60) as media_cs 
-                    FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
+                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida::float / 60) as media_cs 
+                     FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
                     [limite, puuid]
                 );
                 progressoAtual = mediaCsQuery.rows[0].media_cs || 0;
@@ -264,11 +265,22 @@ async function atualizarProgressoMetaEspecifica(idMeta) {
         
     } catch (error) {
         console.error('Erro ao atualizar progresso da meta específica:', error);
-        throw new Error('Erro ao atualizar progresso da meta específica');
+        throw error;
     }
 }
 
-async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
+async function alterarMetaEspecifica(idMeta, novoObjetivo, novoLimite, puuid) {
+    // Mapeamento de elos para português
+    const eloMap = [
+        'Sem ranking', 'Ferro IV', 'Ferro III', 'Ferro II', 'Ferro I',
+        'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
+        'Prata IV', 'Prata III', 'Prata II', 'Prata I',
+        'Ouro IV', 'Ouro III', 'Ouro II', 'Ouro I',
+        'Platina IV', 'Platina III', 'Platina II', 'Platina I',
+        'Diamante IV', 'Diamante III', 'Diamante II', 'Diamante I',
+        'Mestre', 'Grão-mestre', 'Desafiante'
+    ];
+
     try {
         // Verificar se a meta existe e pertence ao usuário
         const metaQuery = await db.query(
@@ -282,19 +294,30 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
 
         // Validar o novo objetivo conforme o tipo de meta
         const tipo = meta.tipo_meta;
-        const limite = meta.limite_partidas;
+        let limite = novoLimite !== undefined ? novoLimite : meta.limite_partidas;
         let progressoAtual = 0;
         let descricao = '';
 
+        // Validação e ajuste de limite, quando aplicável
+        if (limite !== null) {
+            limite = Math.round(limite);
+            if (limite <= 0 || limite >= 100000) {
+                throw new Error('Limite inválido para esta meta');
+            }
+        }
+
+        // Validações e cálculos baseados no tipo de meta
         switch (tipo) {
             case 'partidas_total':
                 if (novoObjetivo <= 0 || novoObjetivo >= 100000) throw new Error('Objetivo inválido para meta do tipo "partidas totais"');
+                novoObjetivo = Math.round(novoObjetivo);
                 const partidasTotal = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1', [puuid]);
                 progressoAtual = partidasTotal.rows[0].count;
                 descricao = `Jogar ${novoObjetivo} partidas`;
                 break;
 
             case (tipo.match(/^partidas_campeao_/) || {}).input:
+                novoObjetivo = Math.round(novoObjetivo);
                 const campeao = tipo.replace('partidas_campeao_', '');
                 if (!champions.data[campeao] || novoObjetivo <= 0 || novoObjetivo >= 100000) throw new Error('Objetivo inválido para meta do tipo "partidas com campeao"');
                 const partidasCampeao = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND campeao = $2', [puuid, campeao]);
@@ -303,6 +326,7 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
                 break;
 
             case (tipo.match(/^partidas_rota_/) || {}).input:
+                novoObjetivo = Math.round(novoObjetivo);
                 const rota = tipo.replace('partidas_rota_', '').toUpperCase();
                 if (!['BOTTOM', 'JUNGLE', 'TOP', 'UTILITY', 'MIDDLE'].includes(rota) || novoObjetivo <= 0 || novoObjetivo >= 100000) throw new Error('Objetivo inválido para meta do tipo "partidas na rota"');
                 const partidasRota = await db.query('SELECT COUNT(*) FROM partidas WHERE puuid = $1 AND role = $2', [puuid, rota]);
@@ -311,11 +335,12 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
                 break;
 
             case 'media_cs':
+                novoObjetivo = Math.round(novoObjetivo * 10) / 10;
                 if (novoObjetivo <= 0.0 || novoObjetivo > 10.0 || limite <= 0 || limite >= 100000) {
-                    throw new Error('Objetivo inválido para meta do tipo "media de cs"');
+                    throw new Error('Objetivo ou limite inválido para meta do tipo "media de cs"');
                 }
                 const mediaCsQuery = await db.query(
-                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida / 60) as media_cs 
+                    `SELECT SUM((creep_score->>'totalMinionsKilled')::int + (creep_score->>'neutralMinionsKilled')::int) / SUM(duracao_partida::float / 60) as media_cs 
                     FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
                     [limite, puuid]
                 );
@@ -324,7 +349,8 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
                 break;
 
             case 'media_wr':
-                if (novoObjetivo <= 0.0 || novoObjetivo > 100.0 || limite <= 0 || limite >= 100000) throw new Error('Objetivo inválido para meta do tipo "media de wr"');
+                novoObjetivo = Math.round(novoObjetivo * 10) / 10;
+                if (novoObjetivo <= 0.0 || novoObjetivo > 100.0 || limite <= 0 || limite >= 100000) throw new Error('Objetivo ou limite inválido para meta do tipo "media de wr"');
                 const mediaWrQuery = await db.query(
                     `SELECT COUNT(*) FILTER (WHERE resultado = 'Vitória') * 100.0 / COUNT(*) as winrate
                      FROM (SELECT * FROM partidas WHERE puuid = $1 ORDER BY data_partida DESC LIMIT $2) as ultimas_partidas`,
@@ -335,6 +361,7 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
                 break;
 
             case 'objetivo_elo':
+                novoObjetivo = Math.round(novoObjetivo);
                 if (novoObjetivo <= 0 || novoObjetivo > 27) throw new Error('Objetivo inválido para meta do tipo "objetivo de elo"');
                 const summonerIdQuery = await db.query('SELECT summoner_id FROM jogadores WHERE puuid = $1', [puuid]);
                 const summonerId = summonerIdQuery.rows[0]?.summoner_id;
@@ -350,6 +377,7 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
                 break;
 
             case 'vod_reviews':
+                novoObjetivo = Math.round(novoObjetivo);
                 if (novoObjetivo <= 0 || novoObjetivo >= 100000) throw new Error('Objetivo inválido para meta do tipo "vod_reviews"');
                 const vodReviewsQuery = await db.query(
                     `SELECT COUNT(DISTINCT p.link_vod) as reviews
@@ -366,20 +394,19 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, puuid) {
                 throw new Error('Tipo de meta específica não reconhecido');
         }
 
-        // Atualizar a meta com o novo objetivo e progresso calculado
+        // Atualizar a meta com o novo objetivo, limite (se aplicável) e progresso calculado
         const updateQuery = `
             UPDATE metas_especificas 
-            SET objetivo = $1, progresso_atual = $2, descricao = $3 
-            WHERE id = $4 AND puuid = $5
+            SET objetivo = $1, limite_partidas = $2, progresso_atual = $3, descricao = $4 
+            WHERE id = $5 AND puuid = $6
             RETURNING *;
         `;
-        const result = await db.query(updateQuery, [novoObjetivo, progressoAtual, descricao, idMeta, puuid]);
+        const result = await db.query(updateQuery, [novoObjetivo, limite, progressoAtual, descricao, idMeta, puuid]);
         return result.rows[0];
     } catch (error) {
-        console.error('Erro ao alterar meta específica:', error);
-        throw new Error('Erro ao alterar meta específica');
+        throw error;
     }
-}
+};
 
 async function removerMetaEspecifica(idMeta, puuid) {
     try {
@@ -400,8 +427,7 @@ async function removerMetaEspecifica(idMeta, puuid) {
 
         return { message: 'Meta excluída com sucesso', metaExcluida: result.rows[0] };
     } catch (error) {
-        console.error('Erro ao excluir meta específica:', error);
-        throw new Error(error.message);
+        throw error;
     }
 }
 
@@ -419,8 +445,7 @@ async function adicionarMetaLivre(puuid, nomeMeta) {
         const result = await db.query(insertQuery, [puuid, nomeMeta]);
         return result.rows[0];
     } catch (error) {
-        console.error('Erro ao adicionar meta livre:', error);
-        throw new Error('Erro ao adicionar meta livre');
+        throw error;
     }
 }
 
@@ -445,8 +470,7 @@ async function atualizarStatusMetaLivre(idMeta, puuid) {
         
         return result.rows[0];
     } catch (error) {
-        console.error('Erro ao atualizar status da meta livre:', error);
-        throw new Error('Erro ao atualizar status da meta livre');
+        throw error;
     }
 }
 
@@ -468,8 +492,7 @@ async function removerMetaLivre(idMeta, puuid) {
         
         return { message: 'Meta excluída com sucesso', metaExcluida: result.rows[0] };
     } catch (error) {
-        console.error('Erro ao excluir meta livre:', error);
-        throw new Error('Erro ao excluir meta livre');
+        throw error;
     }
 }
 
@@ -483,14 +506,6 @@ function mapEloToNumber(tier, rank) {
     const tierIndex = tiers.indexOf(tier);
     const division = divisions[rank];
     return tierIndex * 4 + division + 1;
-}
-
-function mapNumberToElo(number) {
-    const elos = ["Unranked", "Iron IV", "Iron III", "Iron II", "Iron I", "Bronze IV", "Bronze III", "Bronze II", "Bronze I", 
-                  "Silver IV", "Silver III", "Silver II", "Silver I", "Gold IV", "Gold III", "Gold II", "Gold I", 
-                  "Platinum IV", "Platinum III", "Platinum II", "Platinum I", "Diamond IV", "Diamond III", "Diamond II", 
-                  "Diamond I", "Master", "Grandmaster", "Challenger"];
-    return elos[number] || "Unranked";
 }
 
 module.exports = {

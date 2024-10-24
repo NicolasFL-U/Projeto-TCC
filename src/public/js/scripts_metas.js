@@ -18,6 +18,56 @@ window.abrirModalStatus = function(id, nome) {
     $('#confirmStatusModal').modal('show'); // Abre o modal
 };
 
+let idMetaAlterar = null;
+let tipoMetaAlterar = null;
+
+window.abrirModalAlterar = function(id, nome, tipoMeta, objetivoAtual, limiteAtual) {
+    idMetaAlterar = id;
+    tipoMetaAlterar = tipoMeta;
+
+    // Configura o nome da meta no modal
+    document.getElementById('metaNomeAlterar').textContent = nome;
+
+    // Define os valores atuais nos campos
+    document.getElementById('novoObjetivoMeta').value = objetivoAtual || '';
+    document.getElementById('novoLimiteMeta').value = limiteAtual || '';
+
+    // Mostrar ou ocultar campos com base no tipo da meta
+    if (tipoMeta === 'objetivo_elo') {
+        document.getElementById('campoObjetivoMetaAlterar').style.display = 'none';
+        document.getElementById('campoEloMetaAlterar').style.display = 'block';
+    } else {
+        document.getElementById('campoObjetivoMetaAlterar').style.display = 'block';
+        document.getElementById('campoEloMetaAlterar').style.display = 'none';
+    }
+
+    document.getElementById('campoLimiteMetaAlterar').style.display = ['media_cs', 'media_wr'].includes(tipoMeta) ? 'block' : 'none';
+
+    // Ajustar o label do campo "Objetivo" baseado no tipo
+    const labelObjetivoMeta = document.querySelector('label[for="novoObjetivoMeta"]');
+    switch(tipoMeta) {
+        case 'partidas_total':
+        case 'partidas_campeao':
+        case 'partidas_rota':
+            labelObjetivoMeta.textContent = "Quantidade de partidas";
+            break;
+        case 'media_cs':
+            labelObjetivoMeta.textContent = "Média (entre 0.0 a 10.0)";
+            break;
+        case 'media_wr':
+            labelObjetivoMeta.textContent = "Winrate em % (entre 0 a 100)";
+            break;
+        case 'vod_reviews':
+            labelObjetivoMeta.textContent = "Quantidade de VOD reviews";
+            break;
+        default:
+            labelObjetivoMeta.textContent = "Objetivo";
+    }
+
+    // Abre o modal
+    $('#alterarMetaModal').modal('show');
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     carregarCampeoes();
     
@@ -102,7 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const objetivo = parseFloat(meta.objetivo) || 1;
 
                 if (meta.tipo === 'livre') {
-                    console.log("Meta livre:", meta);
                     progressoTexto = meta.status ? 'Completo' : 'Incompleto';
                     progressoAtualBarra = meta.status ? 100 : 0; 
                     listItem.innerHTML = `
@@ -168,13 +217,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                             <div class="meta-acoes">
-                                <button class="btn btn-link" style="padding: 0px; margin-top: 0;">
-                                    <img src="/icons/edit.svg" alt="Editar" class="meta-icon">
+                                <button class="btn btn-link" style="padding: 0px;" onclick="abrirModalAlterar(${meta.id}, '${nomeMeta}', '${meta.tipo_meta}', ${meta.objetivo}, ${meta.limite_partidas})">
+                                    <img src="/icons/edit.svg" alt="Alterar" class="meta-icon">
                                 </button>
                                 <button class="btn btn-link" style="padding: 0px; margin-top: 0;" onclick="abrirModalExclusao(${meta.id}, '${meta.tipo}', '${nomeMeta}')">
                                     <img src="/icons/trash.svg" alt="Excluir" class="meta-icon">
                                 </button>
-                                
                             </div>
                         </div>
                     `;
@@ -236,6 +284,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Abrir o modal para adicionar uma meta
     document.getElementById('btnAdicionar').addEventListener('click', function() {
         $('#adicionarMetaModal').modal('show');
+    });
+
+    // Atualizar as metas
+    document.getElementById('btnAtualizar').addEventListener('click', function() {
+        fetch('/atualizarMetas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                errorMessage.textContent = 'Erro ao atualizar metas: ' + data.error;
+                $('#errorModal').modal('show');
+            } else {
+                location.reload();  // Recarrega a página para mostrar as metas atualizadas
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao atualizar metas:', error);
+        });
     });
 
     document.getElementById('confirmAddButton').addEventListener('click', function() {
@@ -304,8 +374,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ idMeta: idMetaStatus })
             })
             .then(response => {
-                console.log("Resposta da API:", response); // Verificar o conteúdo da resposta
-
                 // Certifique-se de que a resposta esteja retornando JSON antes de converter
                 if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
                     return response.json(); // Somente tenta converter para JSON se for realmente JSON
@@ -323,6 +391,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Erro ao alterar o status da meta:', error);
             });
         }
+    });
+
+    // Função para confirmar as alterações da meta específica
+    document.getElementById('confirmAlterarButton').addEventListener('click', function() {
+        const novoObjetivo = tipoMetaAlterar === 'objetivo_elo'
+            ? parseInt(document.getElementById('novoEloMeta').value) // O valor de Elo como objetivo
+            : parseFloat(document.getElementById('novoObjetivoMeta').value); // Caso contrário, usar o valor de objetivo normal
+
+        const novoLimite = document.getElementById('novoLimiteMeta').value ? parseInt(document.getElementById('novoLimiteMeta').value) : null;
+
+        const body = {
+            idMeta: idMetaAlterar,
+            novoObjetivo: novoObjetivo, // Para metas de Elo, o objetivo será o Elo
+            novoLimite: novoLimite
+        };
+
+        fetch('/alterarMetaEspecifica', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                $('#alterarMetaModal').modal('hide');
+                $('#errorModal').modal('show');
+                document.getElementById('errorMessage').textContent = data.error;
+            } else {
+                location.reload(); // Atualiza a página para refletir as mudanças
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao alterar meta:', error);
+        });
     });
 });
 

@@ -148,7 +148,7 @@
 
                         <!-- Seleção de Elo -->
                         <div id="campoEloMeta" class="form-group" style="display: none;">
-                            <label for="eloMeta">Elo</label>
+                            <label for="eloMeta">Elo desejado</label>
                             <select id="eloMeta" class="form-control">
                                 <option value="27">Desafiante</option>
                                 <option value="26">Grão-Mestre</option>
@@ -201,12 +201,76 @@
                     <h6 id="metaNomeStatus"></h6>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmStatusButton">Confirmar</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-outline-primary" id="confirmStatusButton">Confirmar</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal para Alterar Meta Específica -->
+    <div class="modal fade" id="alterarMetaModal" tabindex="-1" aria-labelledby="alterarMetaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alterarMetaModalLabel">Editar objetivo da Meta Específica</h5>
+                </div>
+                <div class="modal-body">
+                    <h6 id="metaNomeAlterar"></h6>
+                    <br>
+
+                    <!-- Campo para alterar o objetivo da meta -->
+                    <div id="campoObjetivoMetaAlterar" class="form-group">
+                        <label for="novoObjetivoMeta">Novo Objetivo</label>
+                        <input type="number" id="novoObjetivoMeta" class="form-control" placeholder="Digite o novo objetivo">
+                    </div>
+
+                    <!-- Campo para alterar o limite de partidas (somente para metas com limite) -->
+                    <div id="campoLimiteMetaAlterar" class="form-group" style="display: none;">
+                        <label for="novoLimiteMeta">Limite de Partidas</label>
+                        <input type="number" id="novoLimiteMeta" class="form-control" placeholder="Digite o novo limite de partidas">
+                    </div>
+
+                    <!-- Campo de elo para metas do tipo "objetivo_elo" -->
+                    <div id="campoEloMetaAlterar" class="form-group" style="display: none;">
+                        <label for="novoEloMeta">Elo desejado</label>
+                        <select id="novoEloMeta" class="form-control">
+                            <option value="27">Desafiante</option>
+                            <option value="26">Grão-Mestre</option>
+                            <option value="25">Mestre</option>
+                            <option value="24">Diamante I</option>
+                            <option value="23">Diamante II</option>
+                            <option value="22">Diamante III</option>
+                            <option value="21">Diamante IV</option>
+                            <option value="20">Esmeralda I</option>
+                            <option value="19">Esmeralda II</option>
+                            <option value="18">Esmeralda III</option>
+                            <option value="17">Esmeralda IV</option>
+                            <option value="16">Platina I</option>
+                            <option value="15">Platina II</option>
+                            <option value="14">Platina III</option>
+                            <option value="13">Platina IV</option>
+                            <option value="12">Ouro I</option>
+                            <option value="11">Ouro II</option>
+                            <option value="10">Ouro III</option>
+                            <option value="9">Ouro IV</option>
+                            <option value="8">Prata I</option>
+                            <option value="7">Prata II</option>
+                            <option value="6">Prata III</option>
+                            <option value="5">Prata IV</option>
+                            <option value="4">Ferro I</option>
+                            <option value="3">Ferro II</option>
+                            <option value="2">Ferro III</option>
+                            <option value="1">Ferro IV</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-outline-primary" id="confirmAlterarButton">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
