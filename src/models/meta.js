@@ -102,7 +102,6 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                      FROM (SELECT * FROM partidas WHERE puuid = $2 ORDER BY data_partida DESC LIMIT $1) as ultimas_partidas`,
                     [limite, puuid]
                 );
-                console.log(mediaCsQuery.rows[0]);
                 progressoAtual = mediaCsQuery.rows[0].media_cs || 0;
                 descricao = `Alcançar a média de ${objetivo} CS/min nas últimas ${limite} partidas`;
                 break;
@@ -136,9 +135,14 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 const response = await axios.get(riotApiUrl, {
                     headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
                 });
-                const rankData = response.data.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
-                progressoAtual = mapEloToNumber(rankData?.tier, rankData?.rank);
-                // Ajustando a descrição para exibir o elo em português
+                if (!response.data || response.data.length === 0) {
+                    progressoAtual = 0;
+                } else {
+                    const rankData = response.data.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
+                    progressoAtual = rankData ? mapEloToNumber(rankData?.tier, rankData?.rank) : 0;  // Se não houver dados, progresso será 0
+                }
+
+                // Ajusta a descrição para exibir o elo em português
                 descricao = `Alcançar o Elo ${eloMap[objetivo]}`;
                 break;
 
@@ -234,8 +238,12 @@ async function atualizarProgressoMetaEspecifica(idMeta) {
                 const response = await axios.get(riotApiUrl, {
                     headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
                 });
-                const rankData = response.data.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
-                progressoAtual = mapEloToNumber(rankData?.tier, rankData?.rank);
+                if (!response.data || response.data.length === 0) {
+                    progressoAtual = 0; 
+                } else {
+                    const rankData = response.data.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
+                    progressoAtual = rankData ? mapEloToNumber(rankData?.tier, rankData?.rank) : 0;
+                }
                 break;
 
             case 'vod_reviews':
@@ -280,6 +288,14 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, novoLimite, puuid) {
         'Diamante IV', 'Diamante III', 'Diamante II', 'Diamante I',
         'Mestre', 'Grão-mestre', 'Desafiante'
     ];
+
+    const rotaMap = {
+        'TOP': 'TopLane',
+        'JUNGLE': 'Jungle',
+        'MIDDLE': 'MidLane',
+        'BOTTOM': 'AdCarry',
+        'UTILITY': 'Suporte'
+    };
 
     try {
         // Verificar se a meta existe e pertence ao usuário
@@ -371,8 +387,12 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, novoLimite, puuid) {
                 const response = await axios.get(riotApiUrl, {
                     headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
                 });
-                const rankData = response.data.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
-                progressoAtual = mapEloToNumber(rankData?.tier, rankData?.rank);
+                if (!response.data || response.data.length === 0) {
+                    progressoAtual = 0;  // Se a resposta estiver vazia, define o progresso como 0
+                } else {
+                    const rankData = response.data.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
+                    progressoAtual = rankData ? mapEloToNumber(rankData.tier, rankData.rank) : 0;  // Se não houver dados, progresso será 0
+                }
                 descricao = `Alcançar o Elo ${eloMap[novoObjetivo]}`;
                 break;
 

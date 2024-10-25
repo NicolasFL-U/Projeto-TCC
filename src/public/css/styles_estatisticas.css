@@ -1,0 +1,87 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navbar {
+    width: 100%;
+    margin: 0;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color:#ffffff;
+}
+
+.nav-link {
+    color: #ffffff;
+    font-size: 1.2rem; /* Tamanho da fonte inicial */
+    transition: font-size 0.15s ease-in-out; /* Transição suave */
+    margin-left: 15px;
+    margin-right: 15px
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    font-size: 1.4rem; /* Tamanho da fonte ao passar o mouse */
+}
+
+.navbar-centered {
+    position: relative;
+    left: auto;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    max-width: 50%; /* Aumenta o tamanho da página */
+}
+
+/* Títulos */
+h1, h2, h3 {
+    color: #ffffff;
+}
+
+/* Estatísticas gerais */
+.stat-card {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+.stat-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #bbbbbb;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 40px;
+    margin-bottom: 15px;
+}

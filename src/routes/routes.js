@@ -5,6 +5,7 @@ const usuarioController = require('../controllers/usuarioController');
 const partidaController = require('../controllers/partidaController');
 const vodController = require('../controllers/vodController');
 const metaController = require('../controllers/metaController');
+const estatisticaController = require('../controllers/estatisticaController');
 
 const router = express.Router();
 const path = require('path');
@@ -64,6 +65,9 @@ router.post('/atualizarMetas', metaController.atualizarMetas);
 router.post('/alterarMetaEspecifica', metaController.alterarMetaEspecifica);
 router.post('/atualizarStatusMetaLivre', metaController.atualizarStatusMetaLivre);
 router.get('/obterCampeoes', metaController.obterCampeoes);
+
+// Rota para exibir as estatísticas
+router.get('/estatisticas', estatisticaController.exibirEstatisticas);
 
 // Logoff
 router.post('/logoff', usuarioController.deslogarUsuario);

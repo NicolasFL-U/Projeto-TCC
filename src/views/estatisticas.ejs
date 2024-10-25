@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estatísticas do Jogador</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles_estatisticas.css">
+</head>
+<body>
+    <%
+        function mapearRota(rota) {
+            const rotas = {
+                'TOP': 'TopLane',
+                'JUNGLE': 'Jungle',
+                'MIDDLE': 'MidLane',
+                'BOTTOM': 'AdCarry',
+                'UTILITY': 'Suporte'
+            };
+            return rotas[rota] || rota;
+        }
+
+        function calcularPorcentagem(completas, total) {
+            if (total === 0) return 0;
+            return ((completas / total) * 100).toFixed(2);
+        }
+
+        function mapearImagemRota(rota) {
+            const imagens = {
+                'TOP': 'top',
+                'JUNGLE': 'jungle',
+                'MIDDLE': 'mid',
+                'BOTTOM': 'bot',
+                'UTILITY': 'support'
+            };
+            return imagens[rota] || 'default';
+        }
+    %>
+    <nav class="navbar navbar-expand-lg bg-primary">
+        <b class="navbar-brand">Estatísticas</b>
+        <div class="container justify-content-center">
+            <ul class="navbar-nav navbar-centered">
+                <li class="nav-item">
+                    <a class="nav-link" href="/partidas">Partidas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metas">Metas</a>
+                </li>
+            </ul>
+        </div>
+        <div class="ml-auto">
+            <form id="logoffForm" action="/logoff" method="POST">
+                <button type="submit" class="btn btn-outline-light">Sair</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Suas Estatísticas</h1>
+        <br>
+
+        <!-- Estatísticas Gerais -->
+        <div class="section-title">Estatísticas das Partidas</div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-header">Partidas Jogadas</div>
+                    <div class="stat-value"><%= estatisticas.quantidade_partidas %></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-header">Média de Duração</div>
+                    <div class="stat-value" id="duracao-media"><%= estatisticas.media_duracao_partidas %></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-header">Taxa de Vitórias (%)</div>
+                    <div class="stat-value" id="taxa-vitorias"><%= estatisticas.porcentagem_vitorias %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KDA e Outras Estatísticas -->
+        <div class="row">
+            <div class="col-md-3" style="padding-right: 10px;">
+                <div class="stat-card">
+                    <div class="stat-header">Média de Abates</div>
+                    <div class="stat-value" style="color: #28a745;"><%= estatisticas.media_kills %></div>
+                </div>
+            </div>
+            <div class="col-md-3" style="padding-left: 10px; padding-right: 15px;">
+                <div class="stat-card">
+                    <div class="stat-header">Média de Mortes</div>
+                    <div class="stat-value" style="color: #dc3545;"><%= estatisticas.media_deaths %></div>
+                </div>
+            </div>
+            <div class="col-md-3" style="padding-left: 15px; padding-right: 10px;">
+                <div class="stat-card">
+                    <div class="stat-header">Méd. Assistências</div>
+                    <div class="stat-value" style="color: #17a2b8;"><%= estatisticas.media_assists %></div>
+                </div>
+            </div>
+            <div class="col-md-3" style="padding-left: 10px;">
+                <div class="stat-card">
+                    <div class="stat-header">CS/Min Médio</div>
+                    <div class="stat-value" id="cs-min-medio"><%= estatisticas.media_cs_min %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dano e Ouro -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-header">Média de Dano por Minuto (DPM)</div>
+                    <div class="stat-value"><%= estatisticas.media_dano_por_minuto %> / min</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-header">Média de Ouro ganho por Minuto (GPM)</div>
+                    <div class="stat-value"><%= estatisticas.media_ouro_por_minuto %> / min</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campeões -->
+        <div class="section-title">Estatísticas por Campeão</div>
+        <ul class="champion-list" id="championList" style="list-style-type: none; padding: 0;">
+            <% campeoes.forEach(campeao => { %>
+                <li style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <!-- Div para a imagem e nome do campeão -->
+                    <div style="display: flex; align-items: center;">
+                        <img 
+                            src="http://ddragon.leagueoflegends.com/cdn/14.21.1/img/champion/<%= campeao.nome %>.png" 
+                            alt="<%= campeao.nome %>" 
+                            class="champion-icon"
+                            style="width: 45px; height: 45px; border-radius: 100%; margin-right: 10px;"
+                        >
+                        <strong class="stat-value"><%= campeao.nome %></strong>
+                    </div>
+
+                    <!-- Div para as estatísticas -->
+                    <div style="display: flex; justify-content: space-between; width: 25%; margin-right: 10px;">
+                        <span class="stat-value"><%= campeao.partidas_jogadas %> <%= campeao.partidas_jogadas === 1 ? 'partida' : 'partidas' %></span>
+                        <span class="stat-value" style="color: green;"><%= campeao.vitorias %>V</span>
+                        <span class="stat-value"> - </span>
+                        <span class="stat-value" style="color: red;"><%= campeao.derrotas %>L</span>
+                    </div>
+                </li>
+            <% }) %>
+        </ul>
+
+        <!-- Estatísticas por Rota -->
+        <div class="section-title">Estatísticas por Rota</div>
+        <ul class="role-list" style="list-style-type: none; padding: 0;">
+            <% roles.forEach(role => { %>
+                <li style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <!-- Div para a imagem e nome da rota -->
+                    <div style="display: flex; align-items: center;">
+                        <img 
+                            src="/ranked-positions/<%= mapearImagemRota(role.nome) %>.png" 
+                            alt="<%= mapearRota(role.nome) %>" 
+                            class="role-icon"
+                            style="width: 45px; height: 45px; border-radius: 100%; margin-right: 10px;"
+                        >
+                        <strong class="stat-value"><%= mapearRota(role.nome) %></strong>
+                    </div>
+
+                    <!-- Div para as estatísticas da rota -->
+                    <div style="display: flex; justify-content: space-between; width: 25%; margin-right: 10px;">
+                        <span class="stat-value"><%= role.partidas_jogadas %> <%= role.partidas_jogadas === 1 ? 'partida' : 'partidas' %></span>
+                        <span class="stat-value" style="color: green;"><%= role.vitorias %>V</span>
+                        <span class="stat-value"> - </span>
+                        <span class="stat-value" style="color: red;"><%= role.derrotas %>L</span>
+                    </div>
+                </li>
+            <% }) %>
+        </ul>
+
+        <!-- Metas e VODs -->
+        <div class="section-title">Metas</div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-header">Metas Específicas</div>
+                    <div class="stat-value">
+                        <%= estatisticas.total_metas_especificas %> | 
+                        <span id="metas-especificas-concluidas" data-concluidas="<%= estatisticas.metas_especificas_completas %>" data-total="<%= estatisticas.total_metas_especificas %>">
+                            <%= estatisticas.metas_especificas_completas %> <%= estatisticas.metas_especificas_completas === 1 ? 'concluída' : 'concluídas' %>
+                            (<%= calcularPorcentagem(estatisticas.metas_especificas_completas, estatisticas.total_metas_especificas) %>%)
+                        </span> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-header">Metas Livres</div>
+                    <div class="stat-value">
+                        <%= estatisticas.total_metas_livres %> | 
+                        <span id="metas-livres-concluidas" data-concluidas="<%= estatisticas.metas_livres_completas %>" data-total="<%= estatisticas.total_metas_livres %>">
+                            <%= estatisticas.metas_livres_completas %> <%= estatisticas.metas_livres_completas === 1 ? 'concluída' : 'concluídas' %>
+                            (<%= calcularPorcentagem(estatisticas.metas_livres_completas, estatisticas.total_metas_livres) %>%)
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tags e Comentários -->
+        <div class="section-title">VOD Reviews</div>
+        <!-- Tags e Comentários -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-header">Partidas com VODs</div>
+                    <div class="stat-value"><%= estatisticas.partidas_com_vod %></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-header">Total de TAGs</div>
+                    <div class="stat-value"><%= estatisticas.total_tags %></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-header">Total de Comentários</div>
+                    <div class="stat-value"><%= estatisticas.total_comentarios %></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/scripts_estatisticas.js"></script>
+</body>
+</html>
