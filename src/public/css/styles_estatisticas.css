@@ -34,11 +34,9 @@ body {
 }
 
 .navbar-centered {
-    position: relative;
-    left: auto;
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .container {
@@ -84,4 +82,57 @@ h1, h2, h3 {
     font-weight: bold;
     margin-top: 40px;
     margin-bottom: 15px;
+}
+
+/* Listas de campeões e rotas */
+.champion-list, .role-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.champion-list li, .role-list li {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.champion-list li:last-child, .role-list li:last-child {
+    margin-bottom: 0;
+}
+
+.champion-list li:hover, .role-list li:hover {
+    background-color: #333333;
+}
+
+.champion-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.champion-icon {
+    max-width: 40px !important;
+    max-height: 40px !important;
+    border-radius: 50% !important; /* Borda circular */
+    margin-right: 10px !important;
+    object-fit: cover !important;
+    border: 2px solid #ddd !important;
+}
+
+.champion-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.champion-item div {
+    display: flex;
+    align-items: center;
+}
+
+.champion-item strong {
+    margin-left: 10px;
 }
