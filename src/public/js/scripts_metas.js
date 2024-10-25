@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Prata IV', 'Prata III', 'Prata II', 'Prata I',
             'Ouro IV', 'Ouro III', 'Ouro II', 'Ouro I',
             'Platina IV', 'Platina III', 'Platina II', 'Platina I',
+            'Esmeralda IV', 'Esmeralda III', 'Esmeralda II', 'Esmeralda I',
             'Diamante IV', 'Diamante III', 'Diamante II', 'Diamante I',
             'Mestre', 'Grão-mestre', 'Desafiante'
         ];
@@ -129,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Requisição para obter metas
-    fetch('/obterMetas')
+    fetch(`/obterMetas?cacheBuster=${new Date().getTime()}`)
         .then(response => response.json())
         .then(data => {
             statusMessage.textContent = '';

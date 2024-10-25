@@ -46,6 +46,7 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
         'Prata IV', 'Prata III', 'Prata II', 'Prata I',
         'Ouro IV', 'Ouro III', 'Ouro II', 'Ouro I',
         'Platina IV', 'Platina III', 'Platina II', 'Platina I',
+        'Esmeralda IV', 'Esmeralda III', 'Esmeralda II', 'Esmeralda I',
         'Diamante IV', 'Diamante III', 'Diamante II', 'Diamante I',
         'Mestre', 'Grão-mestre', 'Desafiante'
     ];
@@ -126,7 +127,7 @@ async function adicionarMetaEspecifica(puuid, tipo, objetivo, limite = null) {
                 // arredonda o objetivo caso venha com casas decimais
                 objetivo = Math.round(objetivo);
 
-                if (objetivo <= 0 || objetivo > 27 || limite !== null) throw new Error('Parâmetros inválidos para meta do tipo "objetivo de elo"');
+                if (objetivo <= 0 || objetivo > 31 || limite !== null) throw new Error('Parâmetros inválidos para meta do tipo "objetivo de elo"');
                 const summonerIdQuery = await db.query('SELECT summoner_id FROM jogadores WHERE puuid = $1', [puuid]);
                 const summonerId = summonerIdQuery.rows[0]?.summoner_id;
                 if (!summonerId) throw new Error('Summoner ID não encontrado para este jogador');
@@ -285,6 +286,7 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, novoLimite, puuid) {
         'Prata IV', 'Prata III', 'Prata II', 'Prata I',
         'Ouro IV', 'Ouro III', 'Ouro II', 'Ouro I',
         'Platina IV', 'Platina III', 'Platina II', 'Platina I',
+        'Esmeralda IV', 'Esmeralda III', 'Esmeralda II', 'Esmeralda I',
         'Diamante IV', 'Diamante III', 'Diamante II', 'Diamante I',
         'Mestre', 'Grão-mestre', 'Desafiante'
     ];
@@ -378,7 +380,7 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, novoLimite, puuid) {
 
             case 'objetivo_elo':
                 novoObjetivo = Math.round(novoObjetivo);
-                if (novoObjetivo <= 0 || novoObjetivo > 27) throw new Error('Objetivo inválido para meta do tipo "objetivo de elo"');
+                if (novoObjetivo <= 0 || novoObjetivo > 31) throw new Error('Objetivo inválido para meta do tipo "objetivo de elo"');
                 const summonerIdQuery = await db.query('SELECT summoner_id FROM jogadores WHERE puuid = $1', [puuid]);
                 const summonerId = summonerIdQuery.rows[0]?.summoner_id;
                 if (!summonerId) throw new Error('Summoner ID não encontrado para este jogador');
@@ -518,11 +520,11 @@ async function removerMetaLivre(idMeta, puuid) {
 
 // Mapeamentos
 function mapEloToNumber(tier, rank) {
-    const tiers = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"];
+    const tiers = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "EMERALD", "MASTER", "GRANDMASTER", "CHALLENGER"];
     const divisions = { "IV": 0, "III": 1, "II": 2, "I": 3 };
-    if (tier === "MASTER") return 25;
-    if (tier === "GRANDMASTER") return 26;
-    if (tier === "CHALLENGER") return 27;
+    if (tier === "MASTER") return 29;
+    if (tier === "GRANDMASTER") return 30;
+    if (tier === "CHALLENGER") return 31;
     const tierIndex = tiers.indexOf(tier);
     const division = divisions[rank];
     return tierIndex * 4 + division + 1;
