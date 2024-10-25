@@ -263,12 +263,8 @@ async function atualizarProgressoMetaEspecifica(idMeta) {
         }
 
         // Atualizar o progresso na tabela
-        const updateQuery = `
-            UPDATE metas_especificas 
-            SET progresso_atual = $1
-            WHERE id = $2
-            RETURNING *;
-        `;
+        const updateQuery = 'UPDATE metas_especificas SET progresso_atual = $1 WHERE id = $2 RETURNING *;';
+
         const result = await db.query(updateQuery, [progressoAtual, idMeta]);
         return result.rows[0];
         
@@ -417,11 +413,7 @@ async function alterarMetaEspecifica(idMeta, novoObjetivo, novoLimite, puuid) {
         }
 
         // Atualizar a meta com o novo objetivo, limite (se aplicável) e progresso calculado
-        const updateQuery = `
-            UPDATE metas_especificas 
-            SET objetivo = $1, limite_partidas = $2, progresso_atual = $3, descricao = $4 
-            WHERE id = $5 AND puuid = $6
-            RETURNING *;
+        const updateQuery = `UPDATE metas_especificas SET objetivo = $1, limite_partidas = $2, progresso_atual = $3, descricao = $4 WHERE id = $5 AND puuid = $6 RETURNING *;
         `;
         const result = await db.query(updateQuery, [novoObjetivo, limite, progressoAtual, descricao, idMeta, puuid]);
         return result.rows[0];
@@ -520,7 +512,7 @@ async function removerMetaLivre(idMeta, puuid) {
 
 // Mapeamentos
 function mapEloToNumber(tier, rank) {
-    const tiers = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "EMERALD", "MASTER", "GRANDMASTER", "CHALLENGER"];
+    const tiers = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "EMERALD", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"];
     const divisions = { "IV": 0, "III": 1, "II": 2, "I": 3 };
     if (tier === "MASTER") return 29;
     if (tier === "GRANDMASTER") return 30;
