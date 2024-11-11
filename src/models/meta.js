@@ -251,8 +251,11 @@ async function atualizarProgressoMetaEspecifica(idMeta) {
                 const vodReviewsQuery = await db.query(
                     `SELECT COUNT(DISTINCT p.link_vod) as reviews
                      FROM partidas p 
-                     JOIN tags t ON p.link_vod = t.link_vod OR p.link_vod = (SELECT link_vod FROM comentarios WHERE link_vod = p.link_vod)
-                     WHERE p.puuid = $1 AND p.link_vod IS NOT NULL`,
+                     LEFT JOIN tags t ON p.link_vod = t.link_vod
+                     LEFT JOIN comentarios c ON p.link_vod = c.link_vod
+                     WHERE p.puuid = $1
+                     AND p.link_vod IS NOT NULL
+                     AND (t.link_vod IS NOT NULL OR c.link_vod IS NOT NULL)`,
                     [puuid]
                 );
                 progressoAtual = vodReviewsQuery.rows[0].reviews || 0;

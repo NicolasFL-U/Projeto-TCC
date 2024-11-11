@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('errorMessage').innerText = data.error;
                     $('#errorModal').modal('show');
                 } else {
-                    socket.emit('novaTag', data); // Emite evento via Socket.io
                     carregarTagsComentarios();
                 }
             })
@@ -83,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('errorMessage').innerText = data.error;
                     $('#errorModal').modal('show');
                 } else {
-                    socket.emit('novoComentario', comentarioData); // Emite evento via Socket.io
                     carregarTagsComentarios();
                 }
             })
@@ -155,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 $('#editModal').modal('hide');
                 $('#errorModal').modal('show');
             } else {
-                socket.emit('atualizarItem', responseData); // Emitir o evento para todos os clientes conectados
                 $('#editModal').modal('hide');
                 carregarTagsComentarios();
             }
