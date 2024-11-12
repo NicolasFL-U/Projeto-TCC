@@ -290,7 +290,7 @@ describe('Testes da função salvarPartidaBanco', () => {
             itensFinais: [3071, 3047, 6692, 6333, 3156, 3076, 3364],
             creepScore: { totalMinionsKilled: 200, neutralMinionsKilled: 50 },
             danoTotal: 25000,
-            ouroGanho: 15000,  // Corrigido: valor definido corretamente
+            ouroGanho: 15000,
         };
     
         db.query.mockResolvedValueOnce({}); 

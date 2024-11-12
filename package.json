@@ -4,7 +4,7 @@
   "description": "TCC de Engenharia de Software feito por Nícolas F. L e Lucas F. S.",
   "main": "src/server.js",
   "scripts": {
-    "test": "jest --detectOpenHandles",
+    "test": "jest --silent",
     "dev": "nodemon src/server.js"
   },
   "keywords": [],
