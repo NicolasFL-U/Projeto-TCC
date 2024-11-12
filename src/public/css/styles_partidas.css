@@ -1,0 +1,240 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navbar {
+    width: 100%;
+    margin: 0;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color:#ffffff;
+}
+
+.nav-link {
+    color: #ffffff;
+    font-size: 1.2rem; /* Tamanho da fonte inicial */
+    transition: font-size 0.15s ease-in-out; /* Transição suave */
+    margin-left: 15px;
+    margin-right: 15px
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    font-size: 1.4rem; /* Tamanho da fonte ao passar o mouse */
+}
+
+.navbar-centered {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.container {
+    width: 50%;
+}
+
+.list-group-item {
+    background-color: #181818;
+    color: #ffffff;
+}
+
+.list-group-item h5 {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.list-group-item p {
+    margin: 0;
+}
+
+.imagem-campeao {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.kda {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.kda-kills {
+    color: rgba(0, 255, 0, 0.85);
+}
+
+.kda-deaths {
+    color: rgba(255, 0, 0, 0.85);
+}
+
+.kda-assists {
+    color: rgba(0, 187, 255, 0.85);
+}
+
+.role-jogador {
+    position: absolute;
+    right: 0;
+    padding-right: 15px;
+}
+
+.data-partida {
+    position: absolute;
+    left: 0;
+}
+
+.resultado-partida {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.duração-partida {
+    position: absolute;
+    right: 0;
+}
+
+.resultado-derrota {
+    color: rgba(255, 0, 0, 0.85);
+}
+
+.resultado-vitoria {
+    color: rgba(0, 255, 0, 0.85);
+}
+
+.partida-derrota {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+.partida-vitoria {
+    background-color: rgba(0, 255, 0, 0.1);
+}
+
+.dano-total {
+    position: absolute;
+    left: 0;
+}  
+
+.creep-score {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.itens-finais {
+    position: absolute;
+    right: 0;
+}
+
+.modal-content {
+    background-color: #181818;
+    color: #ffffff;
+    border: 1px solid #333;
+}
+
+.modal-header {
+    border-bottom: 1px solid #333;
+}
+
+.modal-footer {
+    border-top: 1px solid #333;
+}
+
+.btn-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.summoner-spells {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.summoner-spell-icon {
+    width: 23px;
+    height: 23px;
+    margin-bottom: 1px;
+}
+
+.dados-usuario {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.profile-icon {
+    width: 80px; /* Aumentei o tamanho da imagem */
+    height: 80px; /* Aumentei o tamanho da imagem */
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.informacoes-jogador h5 {
+    font-size: 1.5rem; /* Aumentei o tamanho do nome */
+    margin: 0;
+}
+
+.level-text {
+    font-size: 1rem; /* Aumentei o tamanho do nível */
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+.elo-pdl {
+    margin-left: 25px;
+    text-align: center;
+}
+
+.elo-pdl p {
+    margin: 0;
+    font-size: 1rem; /* Aumentei o tamanho do Elo e PDL */
+}
+
+.vitorias-derrotas {
+    margin-left: 25px;
+    text-align: center;
+}
+
+.vitorias-derrotas p {
+    margin: 0;
+    font-size: 1rem; /* Aumentei o tamanho das vitórias/derrotas */
+    color: rgba(255, 255, 255, 0.85);
+}
+
+#winrate {
+    font-size: 1rem; /* Aumentei o tamanho do winrate */
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.linha-separadora {
+    border: 0;
+    height: 2px; /* Aumentando a espessura da linha */
+    background: rgba(255, 255, 255, 0.5); /* Um branco com opacidade 50% */
+    margin: 20px 0; /* Margem para separar a linha do conteúdo */
+    width: 85%; /* Para garantir que a linha ocupe todo o espaço horizontal */
+}
+
+.elo-icon {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+.vod-btn {
+    position: absolute;
+    right: 0;
+    margin-right: 10px;
+}

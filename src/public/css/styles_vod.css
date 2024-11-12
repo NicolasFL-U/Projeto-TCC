@@ -1,0 +1,374 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.navbar {
+    width: 100%;
+    margin: 0;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.nav-link {
+    color: #ffffff;
+    font-size: 1.2rem;
+    transition: font-size 0.15s ease-in-out;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    font-size: 1.4rem;
+}
+
+.navbar-centered {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.container-fluid {
+    max-width: 100%;
+    display: flex;
+}
+
+#video-container {
+    padding-left: 20px;
+}
+
+#error-tag-form {
+    padding-right: 20px;
+    background-color: #181818;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.modal-dialog {
+    max-width: 450px;
+    margin: auto;
+}
+
+.modal-content {
+    background-color: #181818;
+    color: #ffffff;
+    border: 1px solid #333;
+}
+
+.modal-header {
+    border-bottom: 1px solid #333;
+}
+
+.modal-footer {
+    border-top: 1px solid #333;
+}
+
+iframe {
+    border-radius: 10px;
+    border: 2px solid #333;
+}
+
+.custom-toggle {
+    width: 40px;
+    height: 20px;
+    appearance: none;
+    background-color: #555;
+    border-radius: 20px;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+}
+
+.custom-toggle:checked {
+    background-color: #17e810bb;
+}
+
+.custom-toggle::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s;
+}
+
+.custom-toggle:checked::before {
+    left: 22px;
+}
+
+.main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-top: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+/* Estilos personalizados para o formulário de TAG/Comentário */
+/* Estrutura principal */
+.container-principal {
+    display: flex;
+    flex: 8.5;
+    gap: 10px;
+    margin: 0 50px;
+    overflow: hidden;
+}
+
+/* Estilo do vídeo */
+.video-container {
+    flex: 0.6;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
+.video-container iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.form-container {
+    flex: 0.4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.form-content {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background-color: #181818;
+    border-radius: 10px;
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    margin-bottom: 0px;
+    gap: 10px;
+}
+
+/* Botões de alternância entre TAG e Comentário */
+.toggle-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.toggle-button {
+    flex: 1;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.toggle-button.active {
+    background-color: #007bff;
+}
+
+.toggle-button:last-child {
+    margin-right: 0;
+}
+
+/* Exibição dinâmica dos formulários */
+.form-section {
+    display: none;
+}
+
+.form-section.active {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#tagForm, #commentForm {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Inputs de tempo */
+.time-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px; /* Espaçamento entre os inputs */
+}
+
+.time-inputs input {
+    flex: 2;
+    max-width: 100px;
+    text-align: center;
+}
+
+.time-inputs span {
+    padding: 0 10px;
+    color: #fff;
+}
+
+/* Estilos de sobreposição para as tags e comentários */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    pointer-events: none; /* Allows clicks to pass through to the video */
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
+}
+
+.tag-overlay {
+    align-items: flex-start;
+    padding-top: 5%;
+}
+
+.comentario-overlay {
+    align-items: flex-end; 
+    padding-bottom: 12.5%; 
+}
+
+/* Ajuste para aumentar o tamanho da tag e adicionar transparência */
+.tag-item {
+    color: #fff;
+    padding: 5px 7px; /* Aumenta o padding para ampliar o tamanho do campo */
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 18px; /* Aumenta o tamanho do texto */
+    display: none;
+    font-weight: bold; /* Adiciona negrito para destacar o texto */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+/* Ajustes para o comentário, removendo o background e aumentando o texto */
+.comentario-item {
+    color: #fff;
+    font-size: 20px; /* Aumenta levemente o tamanho do texto */
+    font-weight: bold; /* Deixa o texto mais visível */
+    display: none;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Adiciona sombra ao texto para visibilidade */
+}
+
+/* Estilos para o contêiner da timeline */
+.timeline-container {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0 50px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.timeline-vazia {
+    text-align: center;
+    font-size: 26px;
+    color: #fff;
+    margin: 0; /* Remove margens para evitar deslocamentos */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    flex-grow: 1; /* Permite que a div cresça para ocupar o espaço disponível */
+}
+
+.timeline-content {
+    flex-grow: 1;
+    display: flex;
+    gap: 10px;
+    padding-bottom: 20px;
+}
+
+/* Estilos para os itens da timeline */
+.timeline-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: 150px;
+    max-width: 400px;
+    flex-shrink: 0;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    height: auto;
+    padding: 2px; /* Reduzido para diminuir a altura */
+}
+
+.timeline-item-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    word-break: break-word;
+    justify-content: center; /* Centraliza verticalmente */
+}
+
+.timeline-item-text {
+    text-align: center;
+    flex-grow: 1;
+    margin: 0 5px;
+    font-size: 0.9em;
+}
+
+.timeline-item-time {
+    text-align: center;
+    font-size: 0.8em;
+    color: #ffffff;
+    margin-top: 2px; /* Reduzido para diminuir a altura */
+}
+
+/* Botões de ação (editar e excluir) */
+.timeline-item-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.timeline-item-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 2px 0; /* Reduzido para diminuir a altura */
+}
+
+.timeline-item-buttons button .icon {
+    width: 20px; /* Ajuste o tamanho conforme necessário */
+    height: 20px;
+}

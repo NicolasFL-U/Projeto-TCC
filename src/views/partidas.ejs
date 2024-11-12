@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partidas</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles_partidas.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-primary">
+        <b class="navbar-brand">Partidas</b>
+        <div class="container justify-content-center">
+            <ul class="navbar-nav navbar-centered">
+                <li class="nav-item">
+                    <a class="nav-link" href="/metas">Metas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/estatisticas">Estatísticas</a>
+                </li>
+            </ul>
+        </div>
+        <div class="ml-auto">
+            <form id="logoffForm" action="/logoff" method="POST">
+                <button type="submit" class="btn btn-outline-light">Sair</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="dados-usuario d-flex align-items-center">
+        <!-- Profile Icon -->
+        <img id="profileIcon" src="" alt="Ícone de Perfil" class="profile-icon">
+    
+        <!-- Informações do jogador -->
+        <div class="informacoes-jogador">
+            <h5 id="gameName">Buscando</h5>
+            <p id="summonerLevel" class="level-text">Nível: <span>Buscando</span></p>
+        </div>
+    
+        <!-- Elo e PDL com ícone do elo -->
+        <div class="elo-pdl d-flex align-items-center">
+            <img id="eloIcon" src="" alt="Ícone do Elo" class="elo-icon"> <!-- Ícone do Elo -->
+            <div class="d-flex flex-column text-center">
+                <p id="tier">Buscando</p>
+                <p id="rank">Buscando</p>
+                <p id="leaguePoints">Buscando</p>
+            </div>
+        </div>
+    
+        <!-- Vitórias, Derrotas e Winrate -->
+        <div class="vitorias-derrotas">
+            <p id="wins-losses">
+                <span id="wins">Buscando</span>V / <span id="losses">Buscando</span>L
+            </p>
+            <p id="winrate">(Buscando)</p>
+        </div>
+    </div>
+
+    <hr class="linha-separadora">
+
+    <script>
+        function toggleTextoDetalhes(botao) {
+            // Verifica o estado do botão e troca o texto
+            if (botao.textContent === "Mais detalhes") {
+                botao.textContent = "Menos detalhes";
+            } else {
+                botao.textContent = "Mais detalhes";
+            }
+        }
+    </script>
+    
+    <div class="container mt-4">
+        <h1 class="text-center">Suas Partidas</h1>
+        <div class="text-right mb-3" style="margin-top: 25px;">
+            <button id="btnAtualizar" class="btn btn-outline-primary">Atualizar</button>
+        </div>
+        <ul class="list-group">
+            <%
+            function formatRole(role) {
+                switch(role) {
+                    case 'TOP': return 'TopLaner';
+                    case 'JUNGLE': return 'Jungler';
+                    case 'MIDDLE': return 'MidLaner';
+                    case 'BOTTOM': return 'AdCarry';
+                    case 'UTILITY': return 'Support';
+                    default: return role;
+                }
+            }
+            
+            function getRoleIcon(role) {
+                switch(role) {
+                    case 'TOP': return 'top.png';
+                    case 'JUNGLE': return 'jungle.png';
+                    case 'MIDDLE': return 'mid.png';
+                    case 'BOTTOM': return 'bot.png';
+                    case 'UTILITY': return 'support.png';
+                    default: return '';
+                }
+            }
+            
+            function getSpellImage(spellId) {
+                const spellMap = {
+                    1: 'SummonerBoost',
+                    3: 'SummonerExhaust',
+                    4: 'SummonerFlash',
+                    6: 'SummonerHaste',
+                    7: 'SummonerHeal',
+                    11: 'SummonerSmite',
+                    12: 'SummonerTeleport',
+                    13: 'SummonerMana',
+                    14: 'SummonerDot',
+                    21: 'SummonerBarrier',
+                    32: 'SummonerSnowball'
+                };
+                return `https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/${spellMap[spellId] || 'SummonerFlash'}.png`;
+            }
+            %>
+            <% if (partidas.length > 0) { %>
+                <% partidas.forEach(function(partida) { 
+                %>
+                    <li class="list-group-item <%= partida.resultado === 'Vitória' ? 'partida-vitoria' : 'partida-derrota' %>" style="margin-bottom: 10px">
+                        <div class="d-flex align-items-center mt-2" style="position: relative; width: 100%; padding-top: 5px">
+                            <!-- Data, Vitória/Derrota, Duração -->
+                            <span class="data-partida" style="color: rgba(255, 255, 255, 0.85); font-size:small"><%= partida.data_formatada.split(" ")[0] %></span>
+                            <span class="resultado-partida <%= partida.resultado === 'Vitória' ? 'resultado-vitoria' : 'resultado-derrota' %>">
+                                <strong><%= partida.resultado %></strong>
+                            </span>
+                            <span class="duração-partida" style="color: rgba(255, 255, 255, 0.85); font-size:small">
+                                <%= Math.floor(partida.duracao_partida / 60) %>m <%= String(partida.duracao_partida % 60).padStart(2, '0') %>s
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center mt-2" style="padding-top: 10px;">
+                            <!-- Imagem do Campeão -->
+                            <img src="https://ddragon.leagueoflegends.com/cdn/14.20.1/img/champion/<%= partida.campeao %>.png" alt="<%= partida.campeao %>" class="imagem-campeao">
+
+                            <!-- Summoner Spells ao lado do campeão -->
+                            <div class="summoner-spells">
+                                <img src="<%= getSpellImage(partida.summoner_spells.spell2) %>" alt="Spell 2" class="summoner-spell-icon">
+                                <img src="<%= getSpellImage(partida.summoner_spells.spell1) %>" alt="Spell 1" class="summoner-spell-icon">
+                            </div>
+
+                            <!-- K/D/A do jogador -->
+                            <div class="kda">
+                                <div class="text-center" style="font-size: small;">
+                                    <span>K / D / A</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="kda-kills"><%= partida.kda.split('/')[0] %></span>
+                                    <span class="kda-barra">/</span>
+                                    <span class="kda-deaths"><%= partida.kda.split('/')[1] %></span>
+                                    <span class="kda-barra">/</span>
+                                    <span class="kda-assists"><%= partida.kda.split('/')[2] %></span> 
+                                </div>
+                            </div>
+
+                            <!-- Role do Jogador -->
+                            <span class="role-jogador">
+                                <%= formatRole(partida.role) %>
+                                <img src="/ranked-positions/<%= getRoleIcon(partida.role) %>" alt="<%= partida.role %>" style="width: 24px; height: 24px; margin-left: 5px;">
+                            </span>
+                        </div>                   
+
+                        <!-- Seção de detalhes adicionais (oculta por padrão) -->
+                        <div id="detalhes-<%= partida.id_partida %>" class="detalhes-partida mt-2 collapse" style="padding-top: 0px;">
+                            <div class="row">
+                                <div class="col text-left">
+                                    <span>Dano:</span> <%= partida.dano_total %> (<%= Math.floor(partida.dano_total / (partida.duracao_partida / 60)) %>/min)
+                                </div>
+                                <div class="col-md-auto text-center">
+                                    <%= partida.creep_score.totalMinionsKilled + partida.creep_score.neutralMinionsKilled %>CS 
+                                    (<%= ((partida.creep_score.totalMinionsKilled + partida.creep_score.neutralMinionsKilled) / (partida.duracao_partida / 60)).toFixed(1) %>/min)
+                                </div>
+                                <div class="col text-right">
+                                    <span>Ouro:</span> <%= partida.ouro_ganho %> (<%= Math.floor(partida.ouro_ganho / (partida.duracao_partida / 60)) %>/min)
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6 text-center">
+                                    <span>Itens:</span>
+                                    <% partida.itens_finais.forEach(function(item) { %>
+                                        <% if (item !== 0) { %>
+                                            <img src="https://ddragon.leagueoflegends.com/cdn/14.20.1/img/item/<%= item %>.png" alt="Item <%= item %>" style="width: 30px; height: 30px;">
+                                        <% } %>
+                                    <% }) %>
+                                </div>
+                                <div class="col-6 text-center" style="padding-bottom: 10px">
+                                    <span>Runas:</span>
+                                    <% partida.runas.primarias.forEach(function(runaId) { %>
+                                        <img src="<%= getRuneImage(runaId) %>" alt="Runa <%= runaId %>" style="width: 30px; height: 30px;">
+                                    <% }) %> &nbsp;
+                                    <% partida.runas.secundarias.forEach(function(runaId) { %>
+                                        <img src="<%= getRuneImage(runaId) %>" alt="Runa <%= runaId %>" style="width: 30px; height: 30px;">
+                                    <% }) %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- botões de mostrar detalhes e adicionar VOD, um ao lado do outro -->
+                        <div class="d-flex justify-content-between mt-2">
+                            <!-- Botão para mostrar mais detalhes -->
+                            <button class="btn btn-sm btn-link btn-center btn-mais-detalhes" data-toggle="collapse" data-target="#detalhes-<%= partida.id_partida %>" aria-expanded="false" aria-controls="detalhes-<%= partida.id_partida %>" onclick="toggleTextoDetalhes(this)">Mais detalhes</button>
+                        
+                            <!-- Botão para adicionar ou visualizar VOD -->
+                            <button class="btn btn-sm btn-link vod-btn"
+                                <% if (partida.link_vod) { %>
+                                    onclick="window.location.href='/vod/<%= partida.link_vod %>'"
+                                <% } else { %>
+                                    data-toggle="modal" data-target="#vodModal"
+                                <% } %>
+                                data-partida-id="<%= partida.id_partida %>"
+                                data-link-vod="<%= partida.link_vod || '' %>">
+                                <%= partida.link_vod ? 'VOD Review >>' : 'Adicionar VOD +' %>
+                            </button>
+                        </div>
+                    </li>
+                <% }) %>
+            <% } else { %>
+                <li class="list-group-item text-center">Não há partidas registradas.</li>
+            <% } %>
+        </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#btnAtualizar').click(function() {
+                $.post('/atualizarPartidas', function(response) {
+                    location.reload(); // Recarrega a página para mostrar as novas partidas
+                });
+            });
+
+            // Preenche o modal com as informações da partida ao clicar no botão de VOD
+            $('.vod-btn').click(function() {
+                const partidaId = $(this).data('partida-id');
+                const linkVod = $(this).data('link-vod');
+
+                $('#partida_id').val(partidaId);
+                $('#link_vod').val(linkVod);
+            });
+
+            // Envia o formulário para salvar o link da VOD
+            $('#vodForm').submit(function(event) {
+                event.preventDefault(); // Evita o envio tradicional do formulário
+
+                let linkVod = $('#link_vod').val();
+
+                // Verifica se o link começa com "https://www.youtube.com/watch?v="
+                const youtubeBaseUrl = "https://www.youtube.com/watch?v=";
+                if (!linkVod.startsWith(youtubeBaseUrl)) {
+                    alert("Por favor, insira um link válido do YouTube que comece com 'https://www.youtube.com/watch?v='");
+                    return;
+                }
+
+                // Remove tudo que vem após o "v=" no link
+                const urlWithoutParams = linkVod.split('&')[0];
+                $('#link_vod').val(urlWithoutParams); // Atualiza o campo com o link corrigido
+
+                const formData = $(this).serialize();
+
+                $.post('/salvarVod', formData, function(response) {
+                    // Exibir uma mensagem de sucesso (opcional)
+                    $('#vodModal').modal('hide');
+                    location.reload(); // Atualiza a página para refletir o link atualizado
+                });
+            });
+        });
+    </script>
+    <script src="/js/scripts_partidas.js"></script>
+</body>
+
+<!-- Modal de Atualização -->
+<div class="modal fade" id="atualizarModal" tabindex="-1" role="dialog" aria-labelledby="atualizarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="atualizarModalLabel">Atualizando Partidas</h5>
+            </div>
+            <div class="modal-body">
+                <p>Aguarde enquanto suas partidas estão sendo atualizadas... A página será atualizada quando concluído.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" id="fecharModalBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Erro -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Erro</h5>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage"></p> <!-- Aqui será exibida a mensagem de erro -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar VOD -->
+<div class="modal fade" id="vodModal" tabindex="-1" role="dialog" aria-labelledby="vodModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vodModalLabel">Adicionar VOD</h5>
+            </div>
+            <div class="modal-body">
+                <form id="vodForm">
+                    <div class="form-group">
+                        <label for="link_vod">Link do YouTube:</label>
+                        <input type="url" class="form-control" id="link_vod" name="link_vod" placeholder="https://www.youtube.com/watch?v=..." required>
+                    </div>
+                    <input type="hidden" id="partida_id" name="partida_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-outline-primary" id="salvarVodButton">Salvar</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
