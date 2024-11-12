@@ -276,6 +276,11 @@ class Vod {
 
     static async buscarTagsComentarios(link_vod) {
         try {
+            // Verifica se link_vod foi fornecido
+            if (!link_vod) {
+                throw new Error('link_vod é obrigatório');
+            }
+
             // Consultas para buscar tags e comentários
             const tagsQuery = `SELECT id, tag, inicio, fim, cor FROM tags WHERE link_vod = $1`;
             const comentariosQuery = `SELECT id, comentario, inicio, fim FROM comentarios WHERE link_vod = $1`;
