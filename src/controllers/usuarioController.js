@@ -43,7 +43,7 @@ exports.cadastrarUsuario = async (req, res) => {
 
         // Salvar o usuário
         await usuario.salvarUsuarioBanco(puuid);
-        return res.status(201).send('Usuário cadastrado com sucesso!');
+        return res.redirect(`/logar`);
 
     } catch (error) {
         const queryParams = new URLSearchParams({ erro: 10, conta: `${nomeContaRiot}#${tagContaRiot}` }).toString();

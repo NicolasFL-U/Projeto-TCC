@@ -23,6 +23,7 @@ router.get('/logar', (req, res) => {
 router.post('/validarLogin', usuarioController.logarUsuario);
 
 // Partidas
+router.get('/', partidaController.mostrarPartidas);
 router.get('/partidas', partidaController.mostrarPartidas);
 router.post('/atualizarPartidas', partidaController.atualizarPartidas);
 router.get('/dadosUsuario', async (req, res) => {
