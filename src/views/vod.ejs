@@ -436,6 +436,36 @@
         socket.emit('joinVodRoom', linkVod);
     </script>
 
+    <script>
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PAUSED) {
+                preencherCamposComTempoAtual();
+            }
+        }
+
+        function preencherCamposComTempoAtual() {
+            // Obtém o tempo atual do vídeo
+            const tempoAtual = Math.floor(player.getCurrentTime());
+
+            // Calcula o tempo de fim como o tempo atual + 15 segundos
+            const tempoFim = tempoAtual + 15;
+
+            // Preenche os campos de início
+            document.getElementById('inicioMin').value = Math.floor(tempoAtual / 60);
+            document.getElementById('inicioSeg').value = tempoAtual % 60;
+
+            // Preenche os campos de fim
+            document.getElementById('fimMin').value = Math.floor(tempoFim / 60);
+            document.getElementById('fimSeg').value = tempoFim % 60;
+
+            // Faz o mesmo para os campos de comentário, se necessário
+            document.getElementById('inicioMinComment').value = Math.floor(tempoAtual / 60);
+            document.getElementById('inicioSegComment').value = tempoAtual % 60;
+
+            document.getElementById('fimMinComment').value = Math.floor(tempoFim / 60);
+            document.getElementById('fimSegComment').value = tempoFim % 60;
+        }
+    </script>
     <script src="/js/scripts_vod.js"></script>
 </body>
 </html>
